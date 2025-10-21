@@ -3,6 +3,8 @@ import 'package:flutter/foundation.dart'; // Import this to check for kReleaseMo
 import 'package:flutter/material.dart';
 import 'firebase_options.dart';
 import "package:firebase_core/firebase_core.dart";
+import 'authentication/auth_wrapper.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -10,9 +12,11 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
-    DevicePreview(
-      enabled: !kReleaseMode, // Ensures it's only used in debug mode
-      builder: (context) => const MyApp(), // Wrap your app
+    ProviderScope(
+      child: DevicePreview(
+        enabled: !kReleaseMode, // Ensures it's only used in debug mode
+        builder: (context) => const MyApp(), // Wrap your app
+      ),
     ),
   );
 }
@@ -28,24 +32,8 @@ class MyApp extends StatelessWidget {
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
 
-      // Your app's theme, routes, and home
-      theme: ThemeData.light(),
-      darkTheme: ThemeData.dark(),
-      home: const HomePage(),
-    );
-  }
-}
-
-class HomePage extends StatelessWidget {
-  const HomePage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Marketplace Gaming')),
-      body: const Center(
-        child: Text('Hello, World!', style: TextStyle(fontSize: 24)),
-      ),
+      title: 'Theme Marketplace',
+      home: const AuthWrapper(), // This widget handles auth state
     );
   }
 }
