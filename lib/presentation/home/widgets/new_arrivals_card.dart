@@ -42,7 +42,7 @@ class NewArrivalsCard extends StatelessWidget {
                                   w: FontWeight.w500, color: kPrimary)
                               .copyWith(letterSpacing: 0.96)),
                       SizedBox(height: dp(context, 2)),
-                      Text('Nike Air Jordan',
+                      Text('Nike Ice Blue',
                           style: inter(context, 20,
                               w: FontWeight.w500, color: kTextPrimary)),
                       SizedBox(height: dp(context, 8)),
@@ -61,7 +61,7 @@ class NewArrivalsCard extends StatelessWidget {
                     child: Transform.rotate(
                       angle: -0.25,
                       child: Image.asset(
-                        'assets/image/shoes.png',
+                        'assets/image/nike.png',
                         width: dp(context, 170),
                         fit: BoxFit.contain,
                         errorBuilder: (_, __, ___) =>
