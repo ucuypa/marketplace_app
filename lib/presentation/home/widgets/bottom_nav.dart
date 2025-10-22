@@ -3,7 +3,9 @@ import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 
 class BottomNav extends StatelessWidget {
-  const BottomNav({super.key});
+  final VoidCallback? onProfileTap; // Tambahan kecil
+
+  const BottomNav({super.key, this.onProfileTap});
 
   @override
   Widget build(BuildContext context) {
@@ -38,8 +40,17 @@ class BottomNav extends StatelessWidget {
                   _icon('assets/icon/Home.png', Icons.home_outlined, context),
                   _icon('assets/icon/Heart.png', Icons.favorite_border, context),
                   SizedBox(width: dp(context, 56)),
-                   _icon('assets/icon/Notification.png', Icons.notifications_none, context),
-                   _icon('assets/icon/Profile.png', Icons.person_outline, context),
+                  _icon('assets/icon/Notification.png', Icons.notifications_none, context),
+
+                  // 🔹 Di sini kita bungkus ikon profile agar bisa di-tap
+                  GestureDetector(
+                    onTap: onProfileTap,
+                    child: _icon(
+                      'assets/icon/Profile.png',
+                      Icons.person_outline,
+                      context,
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -76,9 +87,9 @@ class BottomNav extends StatelessWidget {
   }
 
   Widget _icon(String asset, IconData fallback, BuildContext ctx) => Image.asset(
-        asset,
-        width: dp(ctx, 24),
-        height: dp(ctx, 24),
-        errorBuilder: (_, __, ___) => Icon(fallback, size: dp(ctx, 22)),
-      );
+    asset,
+    width: dp(ctx, 24),
+    height: dp(ctx, 24),
+    errorBuilder: (_, __, ___) => Icon(fallback, size: dp(ctx, 22)),
+  );
 }

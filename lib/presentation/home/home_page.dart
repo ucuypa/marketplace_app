@@ -7,6 +7,7 @@ import 'widgets/category_chips.dart';
 import 'widgets/popular_row.dart';
 import 'widgets/new_arrivals_card.dart';
 import 'widgets/bottom_nav.dart';
+import '../profile/profile_page.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({super.key});
@@ -45,7 +46,14 @@ class HomePage extends StatelessWidget {
                       ),
                     ),
                     // ===== BOTTOM NAV + FAB =====
-                    const BottomNav(),
+                    BottomNav(
+                      onProfileTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (_) => const ProfilePage()),
+                        );
+                      },
+                    ),
                   ],
                 ),
               ),
