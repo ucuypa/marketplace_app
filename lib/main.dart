@@ -1,6 +1,10 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart'; // Import this to check for kReleaseMode
 import 'package:flutter/material.dart';
+import 'package:marketplace_app/UserModel/user_model.dart';
+import 'package:marketplace_app/authentication/login.dart';
+import 'package:marketplace_app/authentication/registration.dart';
+import 'package:marketplace_app/presentation/home/home_page.dart';
 import 'firebase_options.dart';
 import "package:firebase_core/firebase_core.dart";
 import 'authentication/auth_wrapper.dart';
@@ -33,7 +37,7 @@ class MyApp extends StatelessWidget {
       builder: DevicePreview.appBuilder,
 
       title: 'Theme Marketplace',
-      home: const AuthWrapper(), // This widget handles auth state
+      home: const HomePage(), // This widget handles auth state
     );
   }
 }
