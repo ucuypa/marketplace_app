@@ -1,45 +1,45 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
-.DS_Store
-.atom/
-.build/
-.buildlog/
-.history
-.svn/
-.swiftpm/
-migrate_working_dir/
-
-# IntelliJ related
-*.iml
-*.ipr
-*.iws
-.idea/
-
-# The .vscode folder contains launch configuration and tasks you configure in
-# VS Code which you may wish to be included in version control, so this line
-# is commented out by default.
-#.vscode/
-
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
-.dart_tool/
+# --- Flutter generated / should not be committed ---
+.flutter-plugins
 .flutter-plugins-dependencies
-.pub-cache/
+.dart_tool/
 .pub/
-/build/
-/coverage/
+build/
+coverage/
 
-# Symbolication related
-app.*.symbols
+# Platform ephemeral + env files
+ios/Flutter/flutter_export_environment.sh
+macos/Flutter/ephemeral/
+windows/flutter/ephemeral/
+linux/flutter/ephemeral/
 
-# Obfuscation related
-app.*.map.json
+# Generated plugin registrants (all platforms)
+lib/generated_plugin_registrant.dart
+**/GeneratedPluginRegistrant.*
+**/generated_plugins.cmake
 
-# Android Studio will place build artifacts here
-/android/app/debug
-/android/app/profile
-/android/app/release
+# Android local/derived
+android/.gradle/
+android/local.properties
+android/key.properties
+**/.cxx/
+
+# iOS/macOS Pods cache (keep Podfile checked in)
+ios/Pods/
+macos/Pods/
+
+# VS Code: ignore local settings (keep optional shared files)
+.vscode/settings.json
+.vscode/tasks.json
+.vscode/*.code-workspace
+# (optional allowlists)
+!.vscode/launch.json
+!.vscode/extensions.json
+
+# CMake/Build scratch (desktop)
+**/cmake-build-*/
+**/CMakeFiles/
+**/CMakeCache.txt
+
+# FVM cache (keep version pin)
+.fvm/
+!.fvmrc
