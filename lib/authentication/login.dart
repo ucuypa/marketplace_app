@@ -2,9 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'registration.dart';
-// TODO: Create these screens
-// import 'buyer_home_screen.dart';
-// import 'seller_dashboard_screen.dart';
+import 'package:marketplace_app/presentation/home/home_page.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -53,31 +51,10 @@ class _LoginScreenState extends State<LoginScreen> {
 
       // 3. Navigate based on Role
       if (mounted) {
-        if (userRole == 'buyer') {
-          // Navigate to Buyer Home
-          /*
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const BuyerHomeScreen()),
-          );
-          */
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Buyer Login Successful!')),
-          );
-        } else if (userRole == 'seller') {
-          // Navigate to Seller Dashboard
-          /*
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const SellerDashboardScreen()),
-          );
-          */
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Seller Login Successful!')),
-          );
-        } else {
-          throw Exception("Unknown user role.");
-        }
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
       }
     } on FirebaseAuthException catch (e) {
       // Handle specific auth errors
@@ -118,15 +95,11 @@ class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // Set background color to match the design (light gray)
       backgroundColor: const Color(0xFFF5F5F5),
-
-      // Use a transparent app bar for the back button
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
         leading: IconButton(
-          // Using a standard back icon
           icon: const Icon(Icons.arrow_back_rounded, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),

@@ -37,7 +37,7 @@ class MyApp extends StatelessWidget {
       builder: DevicePreview.appBuilder,
 
       title: 'Theme Marketplace',
-      home: const HomePage(), // This widget handles auth state
+      home: const LoginScreen(), // This widget handles auth state
     );
   }
 }
