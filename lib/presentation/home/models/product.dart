@@ -1,6 +1,6 @@
 import 'package:flutter/foundation.dart';
 
-enum Category { all, mensTShirt, mensShoes, specialPrice }
+enum Category { all, mensTShirt, mensShoes, limited }
 
 @immutable
 class Product {
@@ -10,7 +10,7 @@ class Product {
   final String imageAsset;
   final String badge;
   final bool isPopular;
-  final Category category; // ⬅️ baru
+  final List<Category> categories; // ⬅️ ubah jadi List
 
   const Product({
     required this.id,
@@ -19,7 +19,7 @@ class Product {
     required this.imageAsset,
     this.badge = '',
     this.isPopular = false,
-    this.category = Category.mensTShirt, // default aman
+    this.categories = const [Category.mensTShirt], // default aman
   });
 
   String get priceText => '\$${price.toStringAsFixed(2)}';
