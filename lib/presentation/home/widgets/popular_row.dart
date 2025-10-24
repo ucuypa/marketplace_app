@@ -28,7 +28,7 @@ class PopularRow extends StatelessWidget {
                   price: p.priceText,
                   image: p.imageAsset,
                   onAdd: () {},
-                  imageHeight: dp(context, 92 * s),
+                  imageHeight: 120 * s, // ⬅️ diperbesar dari 92 ke 120
                 ),
                 SizedBox(width: dp(context, 16)),
               ],
