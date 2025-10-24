@@ -18,70 +18,70 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded( // ⬅️ sebelumnya Expanded
-      child: Container(
-        height: dp(context, 201),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(dp(context, 16)),
-        ),
-        child: Stack(
-          children: [
-            Positioned(
-              left: dp(context, 12),
-              top: dp(context, 8),
-              right: dp(context, 12),
-              child: SizedBox(
-                height: imageHeight, // ⬅️ sebelumnya dp(context, 92) agar gambar lebih besar
-                child: Align(
-                  alignment: Alignment.bottomCenter,
-                  child: Transform.rotate(
-                    angle: -0.25,
-                    child: Image.asset(
-                      image,
-                      height: imageHeight,
-                      fit: BoxFit.contain,
-                      errorBuilder: (_, __, ___) =>
-                          Icon(Icons.image_not_supported, size: dp(context, 36)),
-                    ),
+    return Container( // ⬅️ ubah dari Expanded jadi Container biasa
+      width: double.infinity,
+      height: dp(context, 205), // ⬅️ tinggi card diperbesar agar title muat
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(dp(context, 16)),
+      ),
+      child: Stack(
+        children: [
+          Positioned(
+            left: dp(context, 12),
+            top: dp(context, 8),
+            right: dp(context, 12),
+            child: SizedBox(
+              height: imageHeight, // ⬅️ gunakan imageHeight parameter
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Transform.rotate(
+                  angle: -0.25,
+                  child: Image.asset(
+                    image,
+                    height: imageHeight,
+                    fit: BoxFit.contain,
+                    errorBuilder: (_, __, ___) =>
+                        Icon(Icons.image_not_supported, size: dp(context, 36)),
                   ),
                 ),
               ),
             ),
-            Positioned(
-              left: dp(context, 12),
-              right: dp(context, 12),
-              bottom: dp(context, 12),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.end,
-                children: [
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(badge,
-                            style: inter(context, 12,
-                                w: FontWeight.w500, color: kPrimary)),
-                        SizedBox(height: dp(context, 2)),
-                        Text(title,
-                            maxLines: 1,
-                            overflow: TextOverflow.ellipsis,
-                            style: inter(context, 16,
-                                w: FontWeight.w600, color: kTextPrimary)),
-                        SizedBox(height: dp(context, 6)),
-                        Text(price,
-                            style: inter(context, 14,
-                                w: FontWeight.w500, color: kTextPrimary)),
-                      ],
-                    ),
+          ),
+          Positioned(
+            left: dp(context, 12),
+            right: dp(context, 12),
+            bottom: dp(context, 12),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.end,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(badge,
+                          style: inter(context, 11, // ⬅️ dikecilkan dari 12
+                              w: FontWeight.w500, color: kPrimary)),
+                      SizedBox(height: dp(context, 1)), // ⬅️ dikecilkan dari 2
+                      Text(title,
+                          maxLines: 2, // ⬅️ 2 baris untuk title yang panjang
+                          overflow: TextOverflow.ellipsis,
+                          style: inter(context, 14, // ⬅️ dikecilkan dari 16
+                              w: FontWeight.w600, color: kTextPrimary)),
+                      SizedBox(height: dp(context, 4)), // ⬅️ dikecilkan dari 6
+                      Text(price,
+                          style: inter(context, 13, // ⬅️ dikecilkan dari 14
+                              w: FontWeight.w500, color: kTextPrimary)),
+                    ],
                   ),
-                  SizedBox(width: dp(context, 8)),
-                  _AddBtn(onTap: onAdd),
-                ],
-              ),
+                ),
+                SizedBox(width: dp(context, 6)), // ⬅️ dikecilkan dari 8
+                _AddBtn(onTap: onAdd),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
