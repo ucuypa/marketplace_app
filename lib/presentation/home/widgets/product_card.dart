@@ -32,7 +32,7 @@ class ProductCard extends StatelessWidget {
               top: dp(context, 8),
               right: dp(context, 12),
               child: SizedBox(
-                height: dp(context, 92),
+                height: imageHeight, // ⬅️ sebelumnya dp(context, 92) agar gambar lebih besar
                 child: Align(
                   alignment: Alignment.bottomCenter,
                   child: Transform.rotate(
