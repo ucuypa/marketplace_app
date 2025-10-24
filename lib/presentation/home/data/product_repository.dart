@@ -31,5 +31,23 @@ class ProductRepository {
           isPopular: true,
           categories: [Category.mensShoes, Category.limited], // ⬅️ multiple categories!
         ),
+        Product(
+          id: 'p-adidas',
+          title: 'Adidas Originals',
+          price: 75.99,
+          imageAsset: 'assets/image/shoes.png',
+          badge: 'TRENDING',
+          isPopular: true,
+          categories: [Category.mensShoes],
+        ),
+        Product(
+          id: 'p-nike-shirt',
+          title: 'Nike Dri-FIT Tee',
+          price: 35.99,
+          imageAsset: 'assets/image/stussy.png',
+          badge: 'LIMITED',
+          isPopular: true,
+          categories: [Category.mensTShirt, Category.limited],
+        ),
       ];
 }
