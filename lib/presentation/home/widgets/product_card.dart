@@ -18,7 +18,7 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Expanded(
+    return Expanded( // ⬅️ sebelumnya Expanded
       child: Container(
         height: dp(context, 201),
         decoration: BoxDecoration(
