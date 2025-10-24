@@ -11,7 +11,7 @@ class ProductRepository {
           imageAsset: 'assets/image/stussy.png',
           badge: 'BEST SELLER',
           isPopular: true,
-          category: Category.mensTShirt,
+          categories: [Category.mensTShirt],
         ),
         Product(
           id: 'p-jordan',
@@ -20,8 +20,16 @@ class ProductRepository {
           imageAsset: 'assets/image/shoes.png',
           badge: 'BEST SELLER',
           isPopular: true,
-          category: Category.mensShoes,
+          categories: [Category.mensShoes],
         ),
-        // tambahkan produk lain jika perlu...
+        Product(
+          id: 'p-puma',
+          title: 'PUMA x ONE PIECE Suede',
+          price: 99.99,
+          imageAsset: 'assets/image/puma.jpg',
+          badge: 'NEW ARRIVAL',
+          isPopular: true,
+          categories: [Category.mensShoes, Category.limited], // ⬅️ multiple categories!
+        ),
       ];
 }
