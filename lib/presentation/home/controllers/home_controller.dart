@@ -25,8 +25,9 @@ class HomeController extends ChangeNotifier {
   List<Product> get filtered {
     final q = _query.trim().toLowerCase();
     return _all.where((p) {
-      final matchCat =
-          _selected == Category.all ? true : p.category == _selected;
+      final matchCat = _selected == Category.all 
+          ? true 
+          : p.categories.contains(_selected); // ⬅️ ubah dari == jadi contains
       final matchQ = q.isEmpty ? true : p.title.toLowerCase().contains(q);
       return matchCat && matchQ;
     }).toList();
