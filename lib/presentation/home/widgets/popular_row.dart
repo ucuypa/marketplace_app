@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
+import '../controllers/home_controller.dart';
 import 'product_card.dart';
 
 class PopularRow extends StatelessWidget {
@@ -9,6 +11,8 @@ class PopularRow extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = Scale.of(context).s;
+    final popular = context.watch<HomeController>().filteredPopular;
+
     return Column(
       children: [
         _sectionHeader(context, 'Popular Product'),
@@ -17,23 +21,17 @@ class PopularRow extends StatelessWidget {
           padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
           child: Row(
             children: [
-              ProductCard(
-                badge: 'BEST SELLER',
-                title: 'Stussy Angel',
-                price: '\$40.99',
-                image: 'assets/image/stussy.png',
-                onAdd: () {},
-                imageHeight: dp(context, 92),
-              ),
-              SizedBox(width: dp(context, 16)),
-              ProductCard(
-                badge: 'BEST SELLER',
-                title: 'Nike Jordan',
-                price: '\$59.99',
-                image: 'assets/image/shoes.png',
-                onAdd: () {},
-                imageHeight: dp(context, 92),
-              ),
+              for (final p in popular.take(2)) ...[
+                ProductCard(
+                  badge: p.badge,
+                  title: p.title,
+                  price: p.priceText,
+                  image: p.imageAsset,
+                  onAdd: () {},
+                  imageHeight: dp(context, 92 * s),
+                ),
+                SizedBox(width: dp(context, 16)),
+              ],
             ],
           ),
         ),
