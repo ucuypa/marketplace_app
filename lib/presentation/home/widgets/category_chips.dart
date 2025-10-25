@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/gestures.dart'; // enable mouse/touch drag on web
 import 'package:provider/provider.dart';               // ⬅️ tambah
 import '../../shared/scale.dart';
 import '../controllers/home_controller.dart';         // ⬅️ tambah
@@ -42,24 +43,33 @@ class CategoryChips extends StatelessWidget {
 
     return SizedBox(
       height: dp(context, 52),
-      child: ListView(
-        scrollDirection: Axis.horizontal,
-        padding: EdgeInsets.symmetric(horizontal: dp(context, 16)),
-        children: [
-          SizedBox(width: dp(context, 4)),
-          chip('All Categories', selected == Category.all,
-              () => context.read<HomeController>().setCategory(Category.all)),
-          SizedBox(width: dp(context, 8)),
-          chip('Men’s T-Shirt', selected == Category.mensTShirt,
-              () => context.read<HomeController>().setCategory(Category.mensTShirt)),
-          SizedBox(width: dp(context, 8)),
-          chip('Men’s Shoes', selected == Category.mensShoes,
-              () => context.read<HomeController>().setCategory(Category.mensShoes)),
-          SizedBox(width: dp(context, 8)),
-          chip('Limited', selected == Category.limited,
-              () => context.read<HomeController>().setCategory(Category.limited)),
-          SizedBox(width: dp(context, 4)),
-        ],
+      child: ScrollConfiguration(
+        behavior: ScrollConfiguration.of(context).copyWith(
+          dragDevices: {
+            PointerDeviceKind.touch,
+            PointerDeviceKind.mouse, // allow mouse drag on web
+          },
+        ),
+        child: ListView(
+          scrollDirection: Axis.horizontal,
+          physics: const BouncingScrollPhysics(), // smooth bounce scroll
+          padding: EdgeInsets.symmetric(horizontal: dp(context, 16)),
+          children: [
+            SizedBox(width: dp(context, 4)),
+            chip('All Categories', selected == Category.all,
+                () => context.read<HomeController>().setCategory(Category.all)),
+            SizedBox(width: dp(context, 8)),
+            chip('Men’s T-Shirt', selected == Category.mensTShirt,
+                () => context.read<HomeController>().setCategory(Category.mensTShirt)),
+            SizedBox(width: dp(context, 8)),
+            chip('Men’s Shoes', selected == Category.mensShoes,
+                () => context.read<HomeController>().setCategory(Category.mensShoes)),
+            SizedBox(width: dp(context, 8)),
+            chip('Limited', selected == Category.limited,
+                () => context.read<HomeController>().setCategory(Category.limited)),
+            SizedBox(width: dp(context, 4)),
+          ],
+        ),
       ),
     );
   }
