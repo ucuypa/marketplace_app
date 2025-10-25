@@ -5,6 +5,7 @@ import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 import '../controllers/home_controller.dart';
 import 'product_card.dart';
+import '../../detail/product_detail_page.dart'; // ⬅️ untuk navigasi ke detail
 
 class PopularRow extends StatelessWidget {
   const PopularRow({super.key});
@@ -39,16 +40,26 @@ class PopularRow extends StatelessWidget {
                     right: index < popular.length - 1 ? dp(context, 16) : 0,
                   ),
                   child: SizedBox(
-                    width: dp(context, 160), // ⬅️ lebar tetap untuk setiap card
-                    child: ProductCard(
-                      badge: p.badge,
-                      title: p.title,
-                      price: p.priceText,
-                      image: p.imageAsset,
-                      onAdd: () {},
-                      imageHeight: 130 * s, // ⬅️ gambar dikecilkan sedikit agar title fit
-                    ),
-                  ),
+    width: dp(context, 160),
+    child: GestureDetector(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (_) => ProductDetailPage(product: p), // ⬅️ kirim product
+          ),
+        );
+      },
+      child: ProductCard(
+        badge: p.badge,
+        title: p.title,
+        price: p.priceText,
+        image: p.imageAsset,
+        onAdd: () {},                      // tetap: tombol plus jika mau
+        imageHeight: 130 * s,
+      ),
+    ),
+  ),
                 );
               },
             ),
