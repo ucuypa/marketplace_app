@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
+import '../../favorites/favorites_page.dart';
 
 class BottomNav extends StatelessWidget {
   final VoidCallback? onProfileTap; // Tambahan kecil
@@ -38,7 +39,14 @@ class BottomNav extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _icon('assets/icon/Home.png', Icons.home_outlined, context),
-                  _icon('assets/icon/Heart.png', Icons.favorite_border, context),
+                  GestureDetector(
+        onTap: () {
+          Navigator.of(context).push(
+            MaterialPageRoute(builder: (_) => const FavoritesPage()),
+          );
+        },
+        child: _icon('assets/icon/Heart.png', Icons.favorite_border, context),
+      ),
                   SizedBox(width: dp(context, 56)),
                   _icon('assets/icon/Notification.png', Icons.notifications_none, context),
 
