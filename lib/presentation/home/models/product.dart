@@ -10,7 +10,10 @@ class Product {
   final String imageAsset;
   final String badge;
   final bool isPopular;
-  final List<Category> categories; // ⬅️ ubah jadi List
+  final List<Category> categories;
+
+  // ⬇️ NEW
+  final String description;
 
   const Product({
     required this.id,
@@ -19,7 +22,9 @@ class Product {
     required this.imageAsset,
     this.badge = '',
     this.isPopular = false,
-    this.categories = const [Category.mensTShirt], // default aman
+    this.categories = const [Category.mensTShirt],
+    // ⬇️ NEW (default aman)
+    this.description = '',
   });
 
   String get priceText => '\$${price.toStringAsFixed(2)}';
