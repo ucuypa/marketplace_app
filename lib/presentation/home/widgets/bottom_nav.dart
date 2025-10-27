@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 import '../../favorites/favorites_page.dart';
+// ⬇️ tambahkan ini
+import '../../cart/cart_page.dart';
 
 class BottomNav extends StatelessWidget {
-  final VoidCallback? onProfileTap; // Tambahan kecil
+  final VoidCallback? onProfileTap;
 
   const BottomNav({super.key, this.onProfileTap});
 
@@ -40,51 +42,58 @@ class BottomNav extends StatelessWidget {
                 children: [
                   _icon('assets/icon/Home.png', Icons.home_outlined, context),
                   GestureDetector(
-        onTap: () {
-          Navigator.of(context).push(
-            MaterialPageRoute(builder: (_) => const FavoritesPage()),
-          );
-        },
-        child: _icon('assets/icon/Heart.png', Icons.favorite_border, context),
-      ),
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(builder: (_) => const FavoritesPage()),
+                      );
+                    },
+                    child: _icon('assets/icon/Heart.png', Icons.favorite_border, context),
+                  ),
                   SizedBox(width: dp(context, 56)),
                   _icon('assets/icon/Notification.png', Icons.notifications_none, context),
-
-                  // 🔹 Di sini kita bungkus ikon profile agar bisa di-tap
                   GestureDetector(
                     onTap: onProfileTap,
-                    child: _icon(
-                      'assets/icon/Profile.png',
-                      Icons.person_outline,
-                      context,
-                    ),
+                    child: _icon('assets/icon/Profile.png', Icons.person_outline, context),
                   ),
                 ],
               ),
             ),
+
+            // ⬇️ UBAH BAGIAN INI: bungkus FAB dengan GestureDetector
             Positioned(
               bottom: dp(context, 52),
-              child: Container(
-                width: dp(context, 56),
-                height: dp(context, 56),
-                decoration: BoxDecoration(
-                  color: kPrimary,
-                  borderRadius: BorderRadius.circular(dp(context, 28)),
-                  boxShadow: [
-                    BoxShadow(
-                      color: kPrimary.withOpacity(.60),
-                      blurRadius: dp(context, 24),
-                      offset: Offset(0, dp(context, 8)),
-                    )
-                  ],
-                ),
-                child: Center(
-                  child: Image.asset('assets/icon/CartMidNavbar.png',
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(builder: (_) => const CartPage()),
+                  );
+                },
+                child: Container(
+                  width: dp(context, 56),
+                  height: dp(context, 56),
+                  decoration: BoxDecoration(
+                    color: kPrimary,
+                    borderRadius: BorderRadius.circular(dp(context, 28)),
+                    boxShadow: [
+                      BoxShadow(
+                        color: kPrimary.withOpacity(.60),
+                        blurRadius: dp(context, 24),
+                        offset: Offset(0, dp(context, 8)),
+                      )
+                    ],
+                  ),
+                  child: Center(
+                    child: Image.asset(
+                      'assets/icon/CartMidNavbar.png',
                       width: dp(context, 24),
                       height: dp(context, 24),
-                      errorBuilder: (_, __, ___) =>
-                          Icon(Icons.shopping_bag_outlined,
-                              color: Colors.white, size: dp(context, 22))),
+                      errorBuilder: (_, __, ___) => Icon(
+                        Icons.shopping_bag_outlined,
+                        color: Colors.white,
+                        size: dp(context, 22),
+                      ),
+                    ),
+                  ),
                 ),
               ),
             ),
@@ -95,9 +104,9 @@ class BottomNav extends StatelessWidget {
   }
 
   Widget _icon(String asset, IconData fallback, BuildContext ctx) => Image.asset(
-    asset,
-    width: dp(ctx, 24),
-    height: dp(ctx, 24),
-    errorBuilder: (_, __, ___) => Icon(fallback, size: dp(ctx, 22)),
-  );
+        asset,
+        width: dp(ctx, 24),
+        height: dp(ctx, 24),
+        errorBuilder: (_, __, ___) => Icon(fallback, size: dp(ctx, 22)),
+      );
 }
