@@ -6,6 +6,7 @@ import '../../shared/ui_constants.dart';
 import '../controllers/home_controller.dart';
 import 'product_card.dart';
 import '../../detail/product_detail_page.dart'; // ⬅️ untuk navigasi ke detail
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PopularRow extends StatelessWidget {
   const PopularRow({super.key});
@@ -20,7 +21,10 @@ class PopularRow extends StatelessWidget {
         _sectionHeader(context, 'Popular Product'),
         SizedBox(height: dp(context, 12)),
         SizedBox(
-          height: dp(context, 210), // ⬅️ tinggi container diperbesar untuk title
+          height: dp(
+            context,
+            210,
+          ), // ⬅️ tinggi container diperbesar untuk title
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context).copyWith(
               dragDevices: {
@@ -30,7 +34,8 @@ class PopularRow extends StatelessWidget {
             ),
             child: ListView.builder(
               scrollDirection: Axis.horizontal, // ⬅️ scroll horizontal
-              physics: const BouncingScrollPhysics(), // ⬅️ smooth scroll dengan bounce effect
+              physics:
+                  const BouncingScrollPhysics(), // ⬅️ smooth scroll dengan bounce effect
               padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
               itemCount: popular.length, // ⬅️ tampilkan semua product
               itemBuilder: (context, index) {
@@ -40,26 +45,28 @@ class PopularRow extends StatelessWidget {
                     right: index < popular.length - 1 ? dp(context, 16) : 0,
                   ),
                   child: SizedBox(
-    width: dp(context, 160),
-    child: GestureDetector(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (_) => ProductDetailPage(product: p), // ⬅️ kirim product
-          ),
-        );
-      },
-      child: ProductCard(
-        badge: p.badge,
-        title: p.title,
-        price: p.priceText,
-        image: p.imageAsset,
-        onAdd: () {},                      // tetap: tombol plus jika mau
-        imageHeight: 130 * s,
-      ),
-    ),
-  ),
+                    width: dp(context, 160),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ProductDetailPage(
+                              product: p,
+                            ), // ⬅️ kirim product
+                          ),
+                        );
+                      },
+                      child: ProductCard(
+                        badge: p.badge,
+                        title: p.title,
+                        price: p.priceText,
+                        image: p.imageAsset,
+                        onAdd: () {}, // tetap: tombol plus jika mau
+                        imageHeight: 130 * s,
+                      ),
+                    ),
+                  ),
                 );
               },
             ),
@@ -75,11 +82,15 @@ Widget _sectionHeader(BuildContext context, String title) {
     padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
     child: Row(
       children: [
-        Text(title,
-            style: inter(context, 16, w: FontWeight.w500, color: kTextPrimary)),
+        Text(
+          title,
+          style: inter(context, 16, w: FontWeight.w500, color: kTextPrimary),
+        ),
         const Spacer(),
-        Text('See all',
-            style: inter(context, 13, w: FontWeight.w400, color: kPrimary)),
+        Text(
+          'See all',
+          style: inter(context, 13, w: FontWeight.w400, color: kPrimary),
+        ),
       ],
     ),
   );
