@@ -3,7 +3,8 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart'; // ✅ NEW
 import 'package:marketplace_app/presentation/favorites/application/favorites_controller.dart'; // ✅ NEW
-
+import 'package:provider/provider.dart';
+import 'presentation/cart/application/cart_controller.dart';
 import 'package:marketplace_app/UserModel/user_model.dart';
 import 'package:marketplace_app/authentication/login.dart';
 import 'package:marketplace_app/authentication/registration.dart';
@@ -22,6 +23,7 @@ void main() async {
       child: MultiProvider( // ✅ tambahkan MultiProvider
         providers: [
           ChangeNotifierProvider(create: (_) => FavoritesController()),
+          ChangeNotifierProvider(create: (_) => CartController()),
           // tambahkan provider lain di sini jika perlu
         ],
         child: DevicePreview(
