@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:marketplace_app/presentation/shared/scale.dart';
-import 'package:marketplace_app/presentation/shared/ui_constants.dart';
+
 
 class SectionCard extends StatelessWidget {
   final Widget child;

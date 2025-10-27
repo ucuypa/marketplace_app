@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:marketplace_app/presentation/shared/scale.dart';
-import 'package:marketplace_app/presentation/shared/ui_constants.dart';
+import '../../shared/scale.dart';
+
 
 class ProductHero extends StatelessWidget {
   final String imageAsset;
