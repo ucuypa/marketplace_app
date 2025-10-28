@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 import '../../favorites/favorites_page.dart';
-// ⬇️ tambahkan ini
 import '../../cart/cart_page.dart';
 
 class BottomNav extends StatelessWidget {
