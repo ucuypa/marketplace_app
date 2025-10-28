@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../../../presentation/shared/scale.dart';
 import '../../../presentation/shared/ui_constants.dart';
 import '../application/cart_controller.dart';
-import '../models/cart_item.dart';
 import 'cart_item_row.dart';
 
 class CartList extends StatelessWidget {
