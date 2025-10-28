@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';                // ⬅️ tambah
+import 'package:provider/provider.dart';                
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
-import '../controllers/home_controller.dart';          // ⬅️ tambah
+import '../controllers/home_controller.dart';          
 
 class SearchBar extends StatelessWidget {
   const SearchBar({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final value = context.watch<HomeController>().searchQuery; // ⬅️ baca state
+    final value = context.watch<HomeController>().searchQuery; 
 
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
