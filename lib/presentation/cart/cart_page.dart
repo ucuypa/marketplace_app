@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
 import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
-import 'application/cart_controller.dart';
 import 'widgets/cart_app_bar.dart';
 import 'widgets/cart_list.dart';
 import 'widgets/cart_summary.dart';
