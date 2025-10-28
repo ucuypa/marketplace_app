@@ -1,7 +1,7 @@
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart'; // ✅ NEW
+import 'package:provider/provider.dart'; 
 import 'package:marketplace_app/presentation/favorites/application/favorites_controller.dart'; // ✅ NEW
 import 'package:provider/provider.dart';
 import 'presentation/cart/application/cart_controller.dart';
@@ -19,8 +19,8 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
-    ProviderScope( // tetap pakai Riverpod
-      child: MultiProvider( // ✅ tambahkan MultiProvider
+    ProviderScope( 
+      child: MultiProvider( 
         providers: [
           ChangeNotifierProvider(create: (_) => FavoritesController()),
           ChangeNotifierProvider(create: (_) => CartController()),
