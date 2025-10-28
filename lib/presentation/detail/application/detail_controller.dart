@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../home/models/product.dart';
-import '../widgets/color_selector.dart'; // pakai tipe ColorOption biar simpel
+import '../widgets/color_selector.dart'; 
 
 class DetailController extends ChangeNotifier {
   final Product product;
