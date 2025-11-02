@@ -18,11 +18,12 @@ void main() async {
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
   runApp(
-    ProviderScope( // tetap pakai Riverpod
-      child: MultiProvider( // ✅ tambahkan MultiProvider
+    ProviderScope(
+      // tetap pakai Riverpod
+      child: MultiProvider(
+        // Tambahkan MultiProvider
         providers: [
           ChangeNotifierProvider(create: (_) => FavoritesController()),
-          // tambahkan provider lain di sini jika perlu
         ],
         child: DevicePreview(
           enabled: !kReleaseMode,
@@ -44,7 +45,7 @@ class MyApp extends StatelessWidget {
       locale: DevicePreview.locale(context),
       builder: DevicePreview.appBuilder,
       title: 'Theme Marketplace',
-      home: const HomePage(), // This widget handles auth state
+      home: const LoginScreen(), // This widget handles auth state
     );
   }
 }
