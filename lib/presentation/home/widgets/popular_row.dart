@@ -5,7 +5,7 @@ import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 import '../controllers/home_controller.dart';
 import 'product_card.dart';
-import '../../detail/product_detail_page.dart'; // ⬅️ untuk navigasi ke detail
+import '../../detail/product_detail_page.dart'; 
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PopularRow extends StatelessWidget {

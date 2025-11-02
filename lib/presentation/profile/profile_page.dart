@@ -87,6 +87,7 @@ class _ProfilePageState extends State<ProfilePage> {
       if (user == null) throw Exception("No user");
 
       final newName = nameController.text;
+      final newEmail = emailController.text;
       final newPassword = passwordController.text;
 
       // 1. Update Nama di Firestore

@@ -48,6 +48,8 @@ flutter:
     # - assets/icon/Location.png
     - assets/icon/Notification.png
     - assets/icon/Profile.png
+    - assets/icon/Delete.png
+    - assets/icon/AddCheckout.png
 
     # IMAGES
     - assets/image/stussy.png

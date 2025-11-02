@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart'; // enable mouse/touch drag on web
-import 'package:provider/provider.dart';               // ⬅️ tambah
+import 'package:provider/provider.dart';               
 import '../../shared/scale.dart';
-import '../controllers/home_controller.dart';         // ⬅️ tambah
+import '../controllers/home_controller.dart';         
 import '../models/product.dart';                      // ⬅️ enum Category
 
 class CategoryChips extends StatelessWidget {
@@ -15,7 +15,7 @@ class CategoryChips extends StatelessWidget {
 
     Widget chip(String label, bool filled, VoidCallback onTap) {
       return GestureDetector(
-        onTap: onTap, // ⬅️ update state
+        onTap: onTap, 
         child: Container(
           height: 32 * s,
           padding: EdgeInsets.symmetric(horizontal: 16 * s, vertical: 12 * s),

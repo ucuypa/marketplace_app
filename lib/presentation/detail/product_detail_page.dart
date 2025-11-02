@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import 'package:marketplace_app/presentation/shared/scale.dart';
 import 'package:marketplace_app/presentation/shared/ui_constants.dart';
 import '../home/models/product.dart';
+import '../cart/application/cart_controller.dart';
+import '../cart/cart_page.dart';
 
 // controller
 import 'application/detail_controller.dart';
@@ -100,12 +101,25 @@ class ProductDetailPage extends StatelessWidget {
 
                                 // Price + CTA
                                 PriceCtaBar(
-                                  priceText: vm.product.priceText,
-                                  onAddToCart: () {
-                                    // TODO: integrate cart
-                                    Navigator.pop(ctx);
-                                  },
-                                ),
+  priceText: vm.product.priceText,
+  onAddToCart: () {
+    // ambil varian terpilih dari DetailController
+    final size = vm.selectedSize;
+    final color = vm.selectedColor;
+
+    // masukkan ke cart
+    context.read<CartController>().add(
+      vm.product,
+      size: size,
+      color: color,
+    );
+
+    // arahkan ke CartPage
+    Navigator.of(ctx).push(
+      MaterialPageRoute(builder: (_) => const CartPage()),
+    );
+  },
+),
                               ],
                             ),
                           ),
