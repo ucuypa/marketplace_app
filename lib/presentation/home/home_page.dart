@@ -33,28 +33,33 @@ class HomePage extends StatelessWidget {
                     children: [
                       // ===== CONTENT =====
                       Positioned.fill(
-                        child: ListView(
-                          padding: EdgeInsets.only(bottom: dp(ctx, 120)),
-                          children: [
-                            SizedBox(height: dp(ctx, 12)),
-                            const TopBar(),
-                            SizedBox(height: dp(ctx, 24)),
-                            const hp.SearchBar(),
-                            SizedBox(height: dp(ctx, 18)),
-                            const CategoryChips(),
-                            SizedBox(height: dp(ctx, 12)),
-
-                            // --- PERUBAHAN DI SINI ---
-                            const NewArrivalsCard(), // ⬅️ Dipindahkan ke atas
-                            SizedBox(height: dp(ctx, 24)),
-                            const PopularRow(), // ⬅️ Dipindahkan ke bawah
-
-                            // --- AKHIR PERUBAHAN ---
-                            SizedBox(height: dp(ctx, 72)),
-                          ],
+                        child: Consumer<HomeController>(
+                          builder: (context, controller, child) {
+                            if (controller.isLoading) {
+                              return const Center(
+                                child: CircularProgressIndicator(),
+                              );
+                            }
+                            return ListView(
+                              padding: EdgeInsets.only(bottom: dp(ctx, 120)),
+                              children: [
+                                SizedBox(height: dp(ctx, 12)),
+                                const TopBar(),
+                                SizedBox(height: dp(ctx, 24)),
+                                const hp.SearchBar(),
+                                SizedBox(height: dp(ctx, 18)),
+                                const CategoryChips(),
+                                SizedBox(height: dp(ctx, 12)),
+                                const NewArrivalsCard(),
+                                SizedBox(height: dp(ctx, 24)),
+                                const PopularRow(),
+                                SizedBox(height: dp(ctx, 72)),
+                              ],
+                            );
+                          },
                         ),
                       ),
-                      // ===== BOTTOM NAV + FAB =====
+                      // Bottom Nav
                       BottomNav(
                         onProfileTap: () {
                           Navigator.push(
