@@ -1,7 +1,7 @@
 // lib/presentation/home/home_page.dart
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';                
-import 'controllers/home_controller.dart';              
+import 'package:provider/provider.dart';
+import 'controllers/home_controller.dart';
 
 import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
@@ -19,7 +19,7 @@ class HomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
-      create: (_) => HomeController(),                 
+      create: (_) => HomeController(),
       child: Scaffold(
         backgroundColor: kScaffoldBg,
         body: SafeArea(
@@ -43,9 +43,13 @@ class HomePage extends StatelessWidget {
                             SizedBox(height: dp(ctx, 18)),
                             const CategoryChips(),
                             SizedBox(height: dp(ctx, 12)),
-                            const PopularRow(),         
+
+                            // --- PERUBAHAN DI SINI ---
+                            const NewArrivalsCard(), // ⬅️ Dipindahkan ke atas
                             SizedBox(height: dp(ctx, 24)),
-                            const NewArrivalsCard(),
+                            const PopularRow(), // ⬅️ Dipindahkan ke bawah
+
+                            // --- AKHIR PERUBAHAN ---
                             SizedBox(height: dp(ctx, 72)),
                           ],
                         ),
@@ -55,7 +59,9 @@ class HomePage extends StatelessWidget {
                         onProfileTap: () {
                           Navigator.push(
                             context,
-                            MaterialPageRoute(builder: (_) => const ProfilePage()),
+                            MaterialPageRoute(
+                              builder: (_) => const ProfilePage(),
+                            ),
                           );
                         },
                       ),

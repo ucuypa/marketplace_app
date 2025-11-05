@@ -18,7 +18,8 @@ class ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container( // ⬅️ ubah dari Expanded jadi Container biasa
+    return Container(
+      // ⬅️ ubah dari Expanded jadi Container biasa
       width: double.infinity,
       height: dp(context, 205), // ⬅️ tinggi card diperbesar agar title muat
       decoration: BoxDecoration(
@@ -60,19 +61,37 @@ class ProductCard extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Text(badge,
-                          style: inter(context, 11, // ⬅️ dikecilkan dari 12
-                              w: FontWeight.w500, color: kPrimary)),
+                      Text(
+                        badge,
+                        style: inter(
+                          context,
+                          11, // ⬅️ dikecilkan dari 12
+                          w: FontWeight.w500,
+                          color: kPrimary,
+                        ),
+                      ),
                       SizedBox(height: dp(context, 1)), // ⬅️ dikecilkan dari 2
-                      Text(title,
-                          maxLines: 2, // ⬅️ 2 baris untuk title yang panjang
-                          overflow: TextOverflow.ellipsis,
-                          style: inter(context, 14, // ⬅️ dikecilkan dari 16
-                              w: FontWeight.w600, color: kTextPrimary)),
+                      Text(
+                        title,
+                        maxLines: 2, // ⬅️ 2 baris untuk title yang panjang
+                        overflow: TextOverflow.ellipsis,
+                        style: inter(
+                          context,
+                          14, // ⬅️ dikecilkan dari 16
+                          w: FontWeight.w600,
+                          color: kTextPrimary,
+                        ),
+                      ),
                       SizedBox(height: dp(context, 4)), // ⬅️ dikecilkan dari 6
-                      Text(price,
-                          style: inter(context, 13, // ⬅️ dikecilkan dari 14
-                              w: FontWeight.w500, color: kTextPrimary)),
+                      Text(
+                        price,
+                        style: inter(
+                          context,
+                          13, // ⬅️ dikecilkan dari 14
+                          w: FontWeight.w500,
+                          color: kTextPrimary,
+                        ),
+                      ),
                     ],
                   ),
                 ),
@@ -102,11 +121,10 @@ class _AddBtn extends StatelessWidget {
         height: size,
         child: Image.asset(
           'assets/icon/AddProduct3.png',
-          fit: BoxFit.contain,        // isi penuh tanpa background tambahan
+          fit: BoxFit.contain, // isi penuh tanpa background tambahan
           filterQuality: FilterQuality.high,
         ),
       ),
     );
   }
 }
-

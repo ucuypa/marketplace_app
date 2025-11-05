@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 // ⬅️ Import-import yang diperlukan untuk Firebase
-import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_auth/firebase_auth.dart'
+    as auth; // ⬅️ Tambahkan 'as auth'
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -21,7 +22,6 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   // ⬅️ Controller-controller sekarang diinisialisasi kosong
   final TextEditingController nameController = TextEditingController();
-  final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
   // ⬅️ State variables untuk logic UI
@@ -40,7 +40,6 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void dispose() {
     nameController.dispose();
-    emailController.dispose();
     passwordController.dispose();
     super.dispose();
   }
@@ -49,7 +48,8 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _fetchUserData() async {
     setState(() => _isLoading = true);
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      // ⬅️ Gunakan prefix 'auth.'
+      final auth.User? user = auth.FirebaseAuth.instance.currentUser;
       if (user == null) {
         throw Exception("No user logged in");
       }
@@ -64,8 +64,7 @@ class _ProfilePageState extends State<ProfilePage> {
         final data = userDoc.data() as Map<String, dynamic>;
 
         // ⬅️ Set data ke controllers dan state
-        nameController.text = data['name'] ?? '';
-        emailController.text = user.email ?? ''; // Ambil dari Auth lebih aman
+        nameController.text = data['name'] ?? ''; // Ambil dari Auth lebih aman
         passwordController.text = '********'; // Placeholder
         _profilePicUrl = data['profilePicUrl'];
         _userRole = data['role'];
@@ -76,6 +75,14 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _isLoading = false);
   }
 
+  void _showErrorSnackbar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
+    }
+  }
+
   // ===== (U)PDATE: Menyimpan Perubahan Profil =====
   Future<void> _saveProfile() async {
     setState(() => _isLoading = true);
@@ -83,28 +90,27 @@ class _ProfilePageState extends State<ProfilePage> {
     FocusManager.instance.primaryFocus?.unfocus();
 
     try {
-      final user = FirebaseAuth.instance.currentUser;
+      final auth.User? user = auth.FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception("No user");
 
       final newName = nameController.text;
-      final newEmail = emailController.text;
       final newPassword = passwordController.text;
 
-      // 1. Update Nama di Firestore
       await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
         {'name': newName},
       );
 
-      // 2. Update Password di Auth (jika diisi)
       if (newPassword.isNotEmpty && newPassword != '********') {
         await user.updatePassword(newPassword);
       }
 
       // Selesai
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Profile updated successfully!')),
-      );
-    } on FirebaseAuthException catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profile updated successfully!')),
+        );
+      }
+    } on auth.FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         _showErrorSnackbar(
           'This operation is sensitive and requires recent login. Please log out and log in again.',
@@ -116,11 +122,10 @@ class _ProfilePageState extends State<ProfilePage> {
       _showErrorSnackbar('Failed to save profile: ${e.toString()}');
     }
 
-    // ⬅️ Kembalikan ke mode read-only
     setState(() {
       _isLoading = false;
       _isEditing = false;
-      passwordController.text = '********'; // Reset placeholder
+      passwordController.text = '********';
     });
   }
 
@@ -132,39 +137,43 @@ class _ProfilePageState extends State<ProfilePage> {
     if (image == null) return; // User membatalkan
 
     setState(() => _isLoading = true);
-    final String uid = FirebaseAuth.instance.currentUser!.uid;
+    // ⬅️ Gunakan prefix 'auth.'
+    final String uid = auth.FirebaseAuth.instance.currentUser!.uid;
 
     try {
       // 1. Buat referensi di Storage
       final Reference storageRef = FirebaseStorage.instance
           .ref()
           .child('profile_pictures')
-          .child('$uid.jpg');
+          .child('$uid.jpg'); // Assuming it's always a JPG
 
-      // 2. Upload file (CARA BERBEDA UNTUK WEB DAN MOBILE)
+      // 2. ⭐️ BUAT METADATA DENGAN CONTENT TYPE ⭐️
+      final metadata = SettableMetadata(
+        contentType: 'image/jpeg', // ⬅️ INI ADALAH PERBAIKANNYA
+      );
+
+      // 3. Upload file (CARA BERBEDA UNTUK WEB DAN MOBILE)
       if (kIsWeb) {
         // --- UNTUK WEB ---
-        // Ambil data gambar sebagai bytes
         final Uint8List imageBytes = await image.readAsBytes();
-        // Upload menggunakan putData
-        await storageRef.putData(imageBytes);
+        // Upload menggunakan putData dengan metadata
+        await storageRef.putData(imageBytes, metadata); // ⬅️ Tambahkan metadata
       } else {
         // --- UNTUK MOBILE / DESKTOP ---
-        // Ambil file dari path
         final File imageFile = File(image.path);
-        // Upload menggunakan putFile
-        await storageRef.putFile(imageFile);
+        // Upload menggunakan putFile dengan metadata
+        await storageRef.putFile(imageFile, metadata); // ⬅️ Tambahkan metadata
       }
 
-      // 3. Dapatkan URL download (Sama untuk keduanya)
+      // 4. Dapatkan URL download (Sama untuk keduanya)
       final String downloadURL = await storageRef.getDownloadURL();
 
-      // 4. Update URL di Firestore
+      // 5. Update URL di Firestore
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
         'profilePicUrl': downloadURL,
       });
 
-      // 5. Update UI secara lokal
+      // 6. Update UI secara lokal
       setState(() {
         _profilePicUrl = downloadURL;
       });
@@ -172,13 +181,6 @@ class _ProfilePageState extends State<ProfilePage> {
       _showErrorSnackbar('Failed to upload image: ${e.toString()}');
     }
     setState(() => _isLoading = false);
-  }
-
-  // ===== Helper untuk menampilkan error =====
-  void _showErrorSnackbar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), backgroundColor: Colors.red),
-    );
   }
 
   @override
@@ -308,6 +310,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           // ===== Fields (sekarang bisa diedit) =====
                           _editableField('Full Name', nameController, ctx),
                           SizedBox(height: dp(ctx, 20)),
+
                           _editableField(
                             'Password',
                             passwordController,

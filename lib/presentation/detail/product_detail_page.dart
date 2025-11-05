@@ -40,12 +40,12 @@ class ProductDetailPage extends StatelessWidget {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Consumer<DetailController>(
-                         builder: (_, vm, __) => DetailAppBar(
-  onBack: () => Navigator.pop(ctx),
-  title: vm.categoryTitle,     // atau title yang sudah kamu pakai
-  product: vm.product,         // ⬅️ PASS product ke app bar
-),
+                          builder: (_, vm, __) => DetailAppBar(
+                            onBack: () => Navigator.pop(ctx),
+                            title: vm.categoryTitle,
+                            product: vm.product,
                           ),
+                        ),
 
                         // Hero image
                         Consumer<DetailController>(
@@ -60,26 +60,47 @@ class ProductDetailPage extends StatelessWidget {
                             builder: (context, vm, _) => Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-                                Text(vm.product.badge,
-                                    style: inter(ctx, 12,
-                                        w: FontWeight.w600, color: kPrimary)),
+                                Text(
+                                  vm.product.badge,
+                                  style: inter(
+                                    ctx,
+                                    12,
+                                    w: FontWeight.w600,
+                                    color: kPrimary,
+                                  ),
+                                ),
                                 SizedBox(height: dp(ctx, 6)),
-                                Text(vm.product.title,
-                                    style: inter(ctx, 22,
-                                        w: FontWeight.w700, color: kTextPrimary)),
+                                Text(
+                                  vm.product.title,
+                                  style: inter(
+                                    ctx,
+                                    22,
+                                    w: FontWeight.w700,
+                                    color: kTextPrimary,
+                                  ),
+                                ),
                                 SizedBox(height: dp(ctx, 6)),
-                                Text(vm.product.priceText,
-                                    style: inter(ctx, 16,
-                                        w: FontWeight.w600, color: kTextPrimary)),
+                                Text(
+                                  vm.product.priceText,
+                                  style: inter(
+                                    ctx,
+                                    16,
+                                    w: FontWeight.w600,
+                                    color: kTextPrimary,
+                                  ),
+                                ),
                                 SizedBox(height: dp(ctx, 8)),
                                 Text(
                                   vm.product.description,
                                   maxLines: 3,
                                   overflow: TextOverflow.ellipsis,
-                                  style: inter(ctx, 13,
-                                      w: FontWeight.w400,
-                                      color: kTextMuted,
-                                      h: 1.4),
+                                  style: inter(
+                                    ctx,
+                                    13,
+                                    w: FontWeight.w400,
+                                    color: kTextMuted,
+                                    h: 1.4,
+                                  ),
                                 ),
                                 SizedBox(height: dp(ctx, 16)),
 
@@ -101,25 +122,27 @@ class ProductDetailPage extends StatelessWidget {
 
                                 // Price + CTA
                                 PriceCtaBar(
-  priceText: vm.product.priceText,
-  onAddToCart: () {
-    // ambil varian terpilih dari DetailController
-    final size = vm.selectedSize;
-    final color = vm.selectedColor;
+                                  priceText: vm.product.priceText,
+                                  onAddToCart: () {
+                                    // ambil varian terpilih dari DetailController
+                                    final size = vm.selectedSize;
+                                    final color = vm.selectedColor;
 
-    // masukkan ke cart
-    context.read<CartController>().add(
-      vm.product,
-      size: size,
-      color: color,
-    );
+                                    // masukkan ke cart
+                                    context.read<CartController>().add(
+                                      vm.product,
+                                      size: size,
+                                      color: color,
+                                    );
 
-    // arahkan ke CartPage
-    Navigator.of(ctx).push(
-      MaterialPageRoute(builder: (_) => const CartPage()),
-    );
-  },
-),
+                                    // arahkan ke CartPage
+                                    Navigator.of(ctx).push(
+                                      MaterialPageRoute(
+                                        builder: (_) => const CartPage(),
+                                      ),
+                                    );
+                                  },
+                                ),
                               ],
                             ),
                           ),

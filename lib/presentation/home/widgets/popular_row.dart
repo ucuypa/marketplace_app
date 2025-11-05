@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart'; // ⬅️ untuk PointerDeviceKind
+import 'package:flutter/gestures.dart';
 import 'package:provider/provider.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 import '../controllers/home_controller.dart';
 import 'product_card.dart';
-import '../../detail/product_detail_page.dart'; 
+import '../../detail/product_detail_page.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class PopularRow extends StatelessWidget {
@@ -20,57 +20,42 @@ class PopularRow extends StatelessWidget {
       children: [
         _sectionHeader(context, 'Popular Product'),
         SizedBox(height: dp(context, 12)),
-        SizedBox(
-          height: dp(
-            context,
-            210,
-          ), // ⬅️ tinggi container diperbesar untuk title
-          child: ScrollConfiguration(
-            behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind.mouse, // ⬅️ enable mouse drag untuk web
-              },
-            ),
-            child: ListView.builder(
-              scrollDirection: Axis.horizontal, // ⬅️ scroll horizontal
-              physics:
-                  const BouncingScrollPhysics(), // ⬅️ smooth scroll dengan bounce effect
-              padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
-              itemCount: popular.length, // ⬅️ tampilkan semua product
-              itemBuilder: (context, index) {
-                final p = popular[index];
-                return Padding(
-                  padding: EdgeInsets.only(
-                    right: index < popular.length - 1 ? dp(context, 16) : 0,
-                  ),
-                  child: SizedBox(
-                    width: dp(context, 160),
-                    child: GestureDetector(
-                      onTap: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => ProductDetailPage(
-                              product: p,
-                            ), // ⬅️ kirim product
-                          ),
-                        );
-                      },
-                      child: ProductCard(
-                        badge: p.badge,
-                        title: p.title,
-                        price: p.priceText,
-                        image: p.imageAsset,
-                        onAdd: () {}, // tetap: tombol plus jika mau
-                        imageHeight: 130 * s,
-                      ),
-                    ),
+
+        GridView.builder(
+          shrinkWrap: true,
+          physics: const NeverScrollableScrollPhysics(),
+
+          padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
+          itemCount: popular.length,
+
+          gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2, // Tampilkan 2 item per baris
+            crossAxisSpacing: dp(context, 16),
+            mainAxisSpacing: dp(context, 16),
+            childAspectRatio: (160 / 210),
+          ),
+
+          itemBuilder: (context, index) {
+            final p = popular[index];
+            return GestureDetector(
+              onTap: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => ProductDetailPage(product: p),
                   ),
                 );
               },
-            ),
-          ),
+              child: ProductCard(
+                badge: p.badge,
+                title: p.title,
+                price: p.priceText,
+                image: p.imageAsset,
+                onAdd: () {}, // tetap: tombol plus jika mau
+                imageHeight: 130 * s,
+              ),
+            );
+          },
         ),
       ],
     );
