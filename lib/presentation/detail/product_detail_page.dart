@@ -13,7 +13,6 @@ import 'application/detail_controller.dart';
 import 'widgets/detail_app_bar.dart';
 import 'widgets/product_hero.dart';
 import 'widgets/section_card.dart';
-import 'widgets/color_selector.dart';
 import 'widgets/size_selector.dart';
 import 'widgets/price_cta_bar.dart';
 
@@ -104,14 +103,6 @@ class ProductDetailPage extends StatelessWidget {
                                 ),
                                 SizedBox(height: dp(ctx, 16)),
 
-                                // Color selector
-                                ColorSelector(
-                                  options: vm.colorOptions,
-                                  selected: vm.selectedColor,
-                                  onChanged: vm.setColor,
-                                ),
-                                SizedBox(height: dp(ctx, 16)),
-
                                 // Size selector
                                 SizeSelector(
                                   sizes: vm.sizes,
@@ -126,13 +117,11 @@ class ProductDetailPage extends StatelessWidget {
                                   onAddToCart: () {
                                     // ambil varian terpilih dari DetailController
                                     final size = vm.selectedSize;
-                                    final color = vm.selectedColor;
 
                                     // masukkan ke cart
                                     context.read<CartController>().add(
                                       vm.product,
                                       size: size,
-                                      color: color,
                                     );
 
                                     // arahkan ke CartPage

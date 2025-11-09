@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-// ⬅️ Import-import yang diperlukan untuk Firebase
 import 'package:firebase_auth/firebase_auth.dart'
     as auth; // ⬅️ Tambahkan 'as auth'
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -9,8 +8,7 @@ import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
-
-// import '../manage_products/manage_products_page.dart';
+import '../manageproduct/ManageProductsPage.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -221,7 +219,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 ),
         ],
       ),
-      // ⬅️ Tampilkan loading spinner saat memuat data atau menyimpan
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
@@ -338,15 +335,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                   ),
                                 ),
                                 onPressed: () {
-                                  // Navigator.push(
-                                  //   context,
-                                  //   MaterialPageRoute(builder: (_) => const ManageProductsPage()),
-                                  // );
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text(
-                                        'Manage Products page belum tersedia',
-                                      ),
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => const ManageProductPage(),
                                     ),
                                   );
                                 },

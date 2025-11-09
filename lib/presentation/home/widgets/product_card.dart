@@ -37,14 +37,27 @@ class ProductCard extends StatelessWidget {
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Transform.rotate(
-                  angle: -0.25,
-                  child: Image.asset(
-                    image,
-                    height: imageHeight,
-                    fit: BoxFit.contain,
-                    errorBuilder: (_, __, ___) =>
-                        Icon(Icons.image_not_supported, size: dp(context, 36)),
-                  ),
+                  angle: 0,
+                  // Cek apakah URL-nya kosong untuk menghindari error 404
+                  child: (image.isEmpty)
+                      ? Icon(Icons.image_not_supported, size: dp(context, 36))
+                      : Image.network(
+                          // ⬅️ INI PERBAIKANNYA
+                          image, // Ini adalah URL, bukan path aset
+                          height: imageHeight,
+                          fit: BoxFit.cover,
+                          loadingBuilder: (context, child, progress) {
+                            return progress == null
+                                ? child
+                                : const Center(
+                                    child: CircularProgressIndicator(),
+                                  );
+                          },
+                          errorBuilder: (_, __, ___) => Icon(
+                            Icons.image_not_supported,
+                            size: dp(context, 36),
+                          ),
+                        ),
                 ),
               ),
             ),

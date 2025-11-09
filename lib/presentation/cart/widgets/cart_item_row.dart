@@ -36,12 +36,34 @@ class CartItemRow extends StatelessWidget {
               borderRadius: BorderRadius.circular(dp(context, 12)),
             ),
             child: Center(
-              child: Image.asset(
-                item.product.imageAsset,
-                width: dp(context, 120),
-                height: dp(context, 120),
-                fit: BoxFit.contain,
-              ),
+              // ⬅️ Cek apakah URL-nya kosong
+              child: (item.product.imageAsset.isEmpty)
+                  ? Icon(
+                      Icons.image_not_supported,
+                      color: Colors.grey[400],
+                      size: dp(context, 40),
+                    )
+                  // ⬅️ Ganti Image.asset menjadi Image.network
+                  : Image.network(
+                      item.product.imageAsset, // Ini adalah URL
+                      width: dp(context, 120),
+                      height: dp(context, 120),
+                      fit: BoxFit.contain,
+                      // ⬅️ Tambahkan loading builder
+                      loadingBuilder: (context, child, progress) {
+                        return progress == null
+                            ? child
+                            : const Center(child: CircularProgressIndicator());
+                      },
+                      // ⬅️ Tambahkan error builder
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.image_not_supported,
+                          color: Colors.grey[400],
+                          size: dp(context, 40),
+                        );
+                      },
+                    ),
             ),
           ),
           SizedBox(width: dp(context, 12)),
@@ -55,14 +77,24 @@ class CartItemRow extends StatelessWidget {
                   item.product.title,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: inter(context, 14, w: FontWeight.w600, color: kTextPrimary),
+                  style: inter(
+                    context,
+                    14,
+                    w: FontWeight.w600,
+                    color: kTextPrimary,
+                  ),
                 ),
                 SizedBox(height: dp(context, 4)),
 
                 // total per baris (price * qty)
                 Text(
                   '\$${lineTotal.toStringAsFixed(2)}',
-                  style: inter(context, 13, w: FontWeight.w600, color: kTextPrimary),
+                  style: inter(
+                    context,
+                    13,
+                    w: FontWeight.w600,
+                    color: kTextPrimary,
+                  ),
                 ),
                 SizedBox(height: dp(context, 8)),
 
@@ -72,11 +104,15 @@ class CartItemRow extends StatelessWidget {
                     _qtyBtn(
                       context,
                       Icons.remove,
-                      canDec ? () => cart.dec(item) : null, // disabled saat qty==1
+                      canDec
+                          ? () => cart.dec(item)
+                          : null, // disabled saat qty==1
                       enabled: canDec,
                     ),
                     Padding(
-                      padding: EdgeInsets.symmetric(horizontal: dp(context, 10)),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: dp(context, 10),
+                      ),
                       child: Text(
                         '${item.qty}',
                         style: inter(context, 14, w: FontWeight.w600),
@@ -100,7 +136,12 @@ class CartItemRow extends StatelessWidget {
             children: [
               Text(
                 item.size ?? '',
-                style: inter(context, 13, w: FontWeight.w600, color: kTextPrimary),
+                style: inter(
+                  context,
+                  13,
+                  w: FontWeight.w600,
+                  color: kTextPrimary,
+                ),
               ),
               SizedBox(height: dp(context, 16)),
               GestureDetector(
@@ -109,8 +150,11 @@ class CartItemRow extends StatelessWidget {
                   'assets/icon/Delete.png',
                   width: dp(context, 24),
                   height: dp(context, 24),
-                  errorBuilder: (_, __, ___) =>
-                      Icon(Icons.delete_outline, color: kDanger, size: dp(context, 22)),
+                  errorBuilder: (_, __, ___) => Icon(
+                    Icons.delete_outline,
+                    color: kDanger,
+                    size: dp(context, 22),
+                  ),
                 ),
               ),
             ],
@@ -120,8 +164,14 @@ class CartItemRow extends StatelessWidget {
     );
   }
 
+  // ... (Sisa kode Anda, _qtyBtn dan _qtyAssetBtn, tidak berubah) ...
   // Tombol qty dengan ikon Material (dipakai untuk minus)
-  Widget _qtyBtn(BuildContext ctx, IconData ic, VoidCallback? onTap, {bool enabled = true}) {
+  Widget _qtyBtn(
+    BuildContext ctx,
+    IconData ic,
+    VoidCallback? onTap, {
+    bool enabled = true,
+  }) {
     return GestureDetector(
       onTap: onTap, // null => tidak respons
       child: Opacity(
@@ -140,7 +190,12 @@ class CartItemRow extends StatelessWidget {
   }
 
   // Tombol qty dengan ikon aset (dipakai untuk plus) — TANPA background/container
-  Widget _qtyAssetBtn(BuildContext ctx, String asset, VoidCallback onTap, {bool enabled = true}) {
+  Widget _qtyAssetBtn(
+    BuildContext ctx,
+    String asset,
+    VoidCallback onTap, {
+    bool enabled = true,
+  }) {
     return GestureDetector(
       onTap: onTap,
       behavior: HitTestBehavior.opaque,

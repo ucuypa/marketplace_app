@@ -37,8 +37,6 @@ class NewArrivalsCard extends StatelessWidget {
           ),
         ),
         SizedBox(height: dp(context, 12)),
-
-        // ⬅️ 4. Gunakan StreamBuilder untuk mengambil data
         StreamBuilder<QuerySnapshot>(
           stream: newArrivalStream,
           builder: (context, snapshot) {
@@ -67,7 +65,6 @@ class NewArrivalsCard extends StatelessWidget {
             final productDoc = snapshot.data!.docs.first;
             final product = Product.fromFirestore(productDoc);
 
-            // ⬅️ 5. Kembalikan UI card Anda, sekarang dengan data dinamis
             return Padding(
               padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
               child: Container(
@@ -85,7 +82,7 @@ class NewArrivalsCard extends StatelessWidget {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                            product.badge ?? 'NEW ARRIVAL', // ⬅️ Ganti
+                            product.badge ?? 'NEW ARRIVAL',
                             style: inter(
                               context,
                               12,
@@ -123,25 +120,31 @@ class NewArrivalsCard extends StatelessWidget {
                       child: Align(
                         alignment: Alignment.centerRight,
                         child: Transform.rotate(
-                          angle: -0.25,
-                          // ⬅️ 6. Ganti Image.asset menjadi Image.network
-                          child: Image.network(
-                            product.imageAsset, // ⬅️ Ganti (ini adalah URL)
-                            width: dp(context, 170),
-                            fit: BoxFit.contain,
-                            // Tambahkan ini untuk UX yang lebih baik
-                            loadingBuilder: (context, child, progress) {
-                              return progress == null
-                                  ? child
-                                  : const Center(
-                                      child: CircularProgressIndicator(),
-                                    );
-                            },
-                            errorBuilder: (_, __, ___) => Icon(
-                              Icons.image_not_supported,
-                              size: dp(context, 48),
-                            ),
-                          ),
+                          angle: 0,
+                          // Cek apakah URL-nya kosong
+                          child: (product.imageAsset.isEmpty)
+                              ? Icon(
+                                  Icons.image_not_supported,
+                                  size: dp(context, 48),
+                                )
+                              : Image.network(
+                                  // ⬅️ INI PERBAIKANNYA
+                                  product
+                                      .imageAsset, // Gunakan URL dari objek product
+                                  width: dp(context, 170),
+                                  fit: BoxFit.cover,
+                                  loadingBuilder: (context, child, progress) {
+                                    return progress == null
+                                        ? child
+                                        : const Center(
+                                            child: CircularProgressIndicator(),
+                                          );
+                                  },
+                                  errorBuilder: (_, __, ___) => Icon(
+                                    Icons.image_not_supported,
+                                    size: dp(context, 48),
+                                  ),
+                                ),
                         ),
                       ),
                     ),
