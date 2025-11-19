@@ -4,10 +4,7 @@
     <option name="autoReloadType" value="NONE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="08aebe35-f783-403f-b0da-03159dbba36e" name="Changes" comment="profile fix">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/lib/presentation/profile/profile_page.dart" beforeDir="false" afterPath="$PROJECT_DIR$/lib/presentation/profile/profile_page.dart" afterDir="false" />
-    </list>
+    <list default="true" id="08aebe35-f783-403f-b0da-03159dbba36e" name="Changes" comment="profile fix &amp; history page added" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -91,7 +88,15 @@
       <option name="project" value="LOCAL" />
       <updated>1761744365910</updated>
     </task>
-    <option name="localTasksCounter" value="2" />
+    <task id="LOCAL-00002" summary="profile fix &amp; history page added">
+      <option name="closed" value="true" />
+      <created>1763567307504</created>
+      <option name="number" value="00002" />
+      <option name="presentableId" value="LOCAL-00002" />
+      <option name="project" value="LOCAL" />
+      <updated>1763567307504</updated>
+    </task>
+    <option name="localTasksCounter" value="3" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -102,6 +107,7 @@
   </component>
   <component name="VcsManagerConfiguration">
     <MESSAGE value="profile fix" />
-    <option name="LAST_COMMIT_MESSAGE" value="profile fix" />
+    <MESSAGE value="profile fix &amp; history page added" />
+    <option name="LAST_COMMIT_MESSAGE" value="profile fix &amp; history page added" />
   </component>
 </project>
