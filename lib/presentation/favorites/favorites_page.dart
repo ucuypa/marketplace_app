@@ -1,5 +1,6 @@
 // lib/presentation/favorites/favorites_page.dart
 import 'package:flutter/material.dart';
+import 'package:marketplace_app/presentation/detail/product_detail_page.dart';
 import 'package:provider/provider.dart';
 
 import '../shared/scale.dart';
@@ -20,7 +21,6 @@ class FavoritesPage extends StatelessWidget {
             final s = calcScale(c);
             return Scale(
               s: s,
-              // gunakan Builder supaya kita punya ctx di DALAM Scale
               child: Builder(
                 builder: (ctx) {
                   return Column(
@@ -34,15 +34,21 @@ class FavoritesPage extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            _iconBtn(ctx,
-                                icon: Icons.arrow_back_ios_new_rounded,
-                                onTap: () => Navigator.pop(ctx)),
+                            _iconBtn(
+                              ctx,
+                              icon: Icons.arrow_back_ios_new_rounded,
+                              onTap: () => Navigator.pop(ctx),
+                            ),
                             Expanded(
                               child: Center(
                                 child: Text(
                                   'Favourite',
-                                  style: inter(ctx, 16,
-                                      w: FontWeight.w600, color: kTextPrimary),
+                                  style: inter(
+                                    ctx,
+                                    16,
+                                    w: FontWeight.w600,
+                                    color: kTextPrimary,
+                                  ),
                                 ),
                               ),
                             ),
@@ -60,8 +66,12 @@ class FavoritesPage extends StatelessWidget {
                               return Center(
                                 child: Text(
                                   'No favorites yet',
-                                  style: inter(ctx, 14,
-                                      w: FontWeight.w500, color: kTextMuted),
+                                  style: inter(
+                                    ctx,
+                                    14,
+                                    w: FontWeight.w500,
+                                    color: kTextMuted,
+                                  ),
                                 ),
                               );
                             }
@@ -74,14 +84,25 @@ class FavoritesPage extends StatelessWidget {
                               ),
                               gridDelegate:
                                   const SliverGridDelegateWithFixedCrossAxisCount(
-                                crossAxisCount: 2,
-                                mainAxisSpacing: 12,
-                                crossAxisSpacing: 12,
-                                childAspectRatio: 0.92,
-                              ),
+                                    crossAxisCount: 2,
+                                    mainAxisSpacing: 12,
+                                    crossAxisSpacing: 12,
+                                    childAspectRatio: 0.92,
+                                  ),
                               itemCount: items.length,
-                              itemBuilder: (_, i) =>
-                                  _FavoriteCard(ctx: ctx, p: items[i]),
+                              itemBuilder: (_, i) => GestureDetector(
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ProductDetailPage(
+                                        product: items[i],
+                                      ), // ⬅️ INI PERBAIKANNYA
+                                    ),
+                                  );
+                                },
+                                child: _FavoriteCard(ctx: ctx, p: items[i]),
+                              ),
                             );
                           },
                         ),
@@ -97,7 +118,11 @@ class FavoritesPage extends StatelessWidget {
     );
   }
 
-  Widget _iconBtn(BuildContext ctx, {required IconData icon, VoidCallback? onTap}) {
+  Widget _iconBtn(
+    BuildContext ctx, {
+    required IconData icon,
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(
@@ -129,28 +154,44 @@ class _FavoriteCard extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // gambar
           Expanded(
             child: Center(
-              child: Image.asset(
-                p.imageAsset,
-                fit: BoxFit.contain,
-                errorBuilder: (_, __, ___) =>
-                    Icon(Icons.image, size: dp(ctx, 36)),
-              ),
+              child: (p.imageAsset.isEmpty)
+                  ? Icon(
+                      Icons.image_not_supported,
+                      size: dp(ctx, 36),
+                      color: Colors.grey[400],
+                    )
+                  : Image.network(
+                      p.imageAsset,
+                      fit: BoxFit.contain,
+                      loadingBuilder: (context, child, progress) {
+                        return progress == null
+                            ? child
+                            : const Center(child: CircularProgressIndicator());
+                      },
+                      errorBuilder: (_, __, ___) =>
+                          Icon(Icons.image_not_supported, size: dp(ctx, 36)),
+                    ),
             ),
           ),
           SizedBox(height: dp(ctx, 8)),
-          Text('BEST SELLER',
-              style: inter(ctx, 11, w: FontWeight.w600, color: kPrimary)),
+          Text(
+            p.badge,
+            style: inter(ctx, 11, w: FontWeight.w600, color: kPrimary),
+          ),
           SizedBox(height: dp(ctx, 4)),
-          Text(p.title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: inter(ctx, 14, w: FontWeight.w600, color: kTextPrimary)),
+          Text(
+            p.title,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: inter(ctx, 14, w: FontWeight.w600, color: kTextPrimary),
+          ),
           SizedBox(height: dp(ctx, 4)),
-          Text(p.priceText,
-              style: inter(ctx, 13, w: FontWeight.w600, color: kTextPrimary)),
+          Text(
+            p.priceText,
+            style: inter(ctx, 13, w: FontWeight.w600, color: kTextPrimary),
+          ),
         ],
       ),
     );

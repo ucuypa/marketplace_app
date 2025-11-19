@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'
-    as auth; // ⬅️ Tambahkan 'as auth'
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
@@ -18,20 +17,17 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  // ⬅️ Controller-controller sekarang diinisialisasi kosong
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // ⬅️ State variables untuk logic UI
-  bool _isLoading = true; // Untuk loading data awal & saat menyimpan
-  bool _isEditing = false; // Untuk toggle mode edit
-  String? _profilePicUrl; // Untuk menyimpan URL gambar profil
-  String? _userRole; // Untuk Cek role 'seller'
+  bool _isLoading = true;
+  bool _isEditing = false;
+  String? _profilePicUrl;
+  String? _userRole;
 
   @override
   void initState() {
     super.initState();
-    // ⬅️ Ambil data pengguna saat halaman dimuat
     _fetchUserData();
   }
 
@@ -42,17 +38,14 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
-  // ===== (R)EAD: Mengambil Data Pengguna =====
   Future<void> _fetchUserData() async {
     setState(() => _isLoading = true);
     try {
-      // ⬅️ Gunakan prefix 'auth.'
       final auth.User? user = auth.FirebaseAuth.instance.currentUser;
       if (user == null) {
         throw Exception("No user logged in");
       }
 
-      // Ambil data dari Firestore
       final DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
           .doc(user.uid)
@@ -61,9 +54,8 @@ class _ProfilePageState extends State<ProfilePage> {
       if (userDoc.exists) {
         final data = userDoc.data() as Map<String, dynamic>;
 
-        // ⬅️ Set data ke controllers dan state
-        nameController.text = data['name'] ?? ''; // Ambil dari Auth lebih aman
-        passwordController.text = '********'; // Placeholder
+        nameController.text = data['name'] ?? '';
+        passwordController.text = '********';
         _profilePicUrl = data['profilePicUrl'];
         _userRole = data['role'];
       }
@@ -81,10 +73,8 @@ class _ProfilePageState extends State<ProfilePage> {
     }
   }
 
-  // ===== (U)PDATE: Menyimpan Perubahan Profil =====
   Future<void> _saveProfile() async {
     setState(() => _isLoading = true);
-    // Sembunyikan keyboard
     FocusManager.instance.primaryFocus?.unfocus();
 
     try {
@@ -102,7 +92,6 @@ class _ProfilePageState extends State<ProfilePage> {
         await user.updatePassword(newPassword);
       }
 
-      // Selesai
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')),
@@ -127,51 +116,37 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
-  // ===== (C)REATE/(U)PDATE: Upload Foto Profil (Multiplatform) =====
   Future<void> _uploadProfilePicture() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
 
-    if (image == null) return; // User membatalkan
+    if (image == null) return;
 
     setState(() => _isLoading = true);
-    // ⬅️ Gunakan prefix 'auth.'
     final String uid = auth.FirebaseAuth.instance.currentUser!.uid;
 
     try {
-      // 1. Buat referensi di Storage
       final Reference storageRef = FirebaseStorage.instance
           .ref()
           .child('profile_pictures')
-          .child('$uid.jpg'); // Assuming it's always a JPG
+          .child('$uid.jpg');
 
-      // 2. ⭐️ BUAT METADATA DENGAN CONTENT TYPE ⭐️
-      final metadata = SettableMetadata(
-        contentType: 'image/jpeg', // ⬅️ INI ADALAH PERBAIKANNYA
-      );
+      final metadata = SettableMetadata(contentType: 'image/jpeg');
 
-      // 3. Upload file (CARA BERBEDA UNTUK WEB DAN MOBILE)
       if (kIsWeb) {
-        // --- UNTUK WEB ---
         final Uint8List imageBytes = await image.readAsBytes();
-        // Upload menggunakan putData dengan metadata
-        await storageRef.putData(imageBytes, metadata); // ⬅️ Tambahkan metadata
+        await storageRef.putData(imageBytes, metadata);
       } else {
-        // --- UNTUK MOBILE / DESKTOP ---
         final File imageFile = File(image.path);
-        // Upload menggunakan putFile dengan metadata
-        await storageRef.putFile(imageFile, metadata); // ⬅️ Tambahkan metadata
+        await storageRef.putFile(imageFile, metadata);
       }
 
-      // 4. Dapatkan URL download (Sama untuk keduanya)
       final String downloadURL = await storageRef.getDownloadURL();
 
-      // 5. Update URL di Firestore
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
         'profilePicUrl': downloadURL,
       });
 
-      // 6. Update UI secara lokal
       setState(() {
         _profilePicUrl = downloadURL;
       });
@@ -179,6 +154,17 @@ class _ProfilePageState extends State<ProfilePage> {
       _showErrorSnackbar('Failed to upload image: ${e.toString()}');
     }
     setState(() => _isLoading = false);
+  }
+
+  Future<void> _signOut() async {
+    try {
+      await auth.FirebaseAuth.instance.signOut();
+      if (mounted) {
+        Navigator.popUntil(context, (route) => route.isFirst);
+      }
+    } catch (e) {
+      _showErrorSnackbar('Failed to sign out: ${e.toString()}');
+    }
   }
 
   @override
@@ -198,7 +184,6 @@ class _ProfilePageState extends State<ProfilePage> {
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
-          // ⬅️ Tombol Edit/Save yang bisa berubah
           _isEditing
               ? TextButton(
                   onPressed: _saveProfile,
@@ -212,8 +197,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   onPressed: () {
                     setState(() {
                       _isEditing = true;
-                      passwordController
-                          .clear(); // ⬅️ Kosongkan field password saat edit
+                      passwordController.clear();
                     });
                   },
                 ),
@@ -231,7 +215,6 @@ class _ProfilePageState extends State<ProfilePage> {
                       builder: (ctx) => ListView(
                         padding: EdgeInsets.all(dp(ctx, 24)),
                         children: [
-                          // ===== Avatar =====
                           Center(
                             child: Stack(
                               alignment: Alignment.bottomRight,
@@ -239,7 +222,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                 CircleAvatar(
                                   radius: dp(ctx, 50),
                                   backgroundColor: Colors.white,
-                                  // ⬅️ Tampilkan gambar dari URL
                                   child: _profilePicUrl == null
                                       ? Icon(Icons.person, size: dp(ctx, 48))
                                       : ClipOval(
@@ -248,7 +230,6 @@ class _ProfilePageState extends State<ProfilePage> {
                                             width: dp(ctx, 100),
                                             height: dp(ctx, 100),
                                             fit: BoxFit.cover,
-                                            // ⬅️ Tampilkan loading saat gambar dimuat
                                             loadingBuilder:
                                                 (context, child, progress) {
                                                   return progress == null
@@ -265,12 +246,10 @@ class _ProfilePageState extends State<ProfilePage> {
                                           ),
                                         ),
                                 ),
-                                // ⬅️ Tombol ganti foto, hanya muncul saat mode edit
                                 Visibility(
                                   visible: _isEditing,
                                   child: GestureDetector(
-                                    onTap:
-                                        _uploadProfilePicture, // ⬅️ Panggil fungsi upload
+                                    onTap: _uploadProfilePicture,
                                     child: Container(
                                       width: dp(ctx, 32),
                                       height: dp(ctx, 32),
@@ -289,12 +268,9 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),
                           ),
-
                           SizedBox(height: dp(ctx, 16)),
-                          // ===== Display name besar (dinamis) =====
                           Center(
                             child: Text(
-                              // ⬅️ Ambil dari controller agar dinamis
                               nameController.text,
                               style: const TextStyle(
                                 fontWeight: FontWeight.w600,
@@ -302,24 +278,17 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
-
                           SizedBox(height: dp(ctx, 32)),
-                          // ===== Fields (sekarang bisa diedit) =====
                           _editableField('Full Name', nameController, ctx),
                           SizedBox(height: dp(ctx, 20)),
-
                           _editableField(
                             'Password',
                             passwordController,
                             ctx,
                             obscure: true,
-                            hint:
-                                'Enter new password (optional)', // ⬅️ Hint untuk password
+                            hint: 'Enter new password (optional)',
                           ),
-
                           SizedBox(height: dp(ctx, 40)),
-                          // ===== Button: Manage Products (bersyarat) =====
-                          // ⬅️ Hanya tampil jika role adalah 'seller'
                           Visibility(
                             visible: _userRole == 'seller',
                             child: SizedBox(
@@ -352,6 +321,19 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
+                          SizedBox(height: dp(ctx, 20)),
+                          TextButton(
+                            onPressed: _signOut,
+                            child: const Text(
+                              'Log Out',
+                              style: TextStyle(
+                                color: Colors.red,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: dp(ctx, 20)),
                         ],
                       ),
                     ),
@@ -362,7 +344,6 @@ class _ProfilePageState extends State<ProfilePage> {
     );
   }
 
-  // ==== helper widget yang dimodifikasi ====
   Widget _editableField(
     String label,
     TextEditingController controller,
@@ -383,13 +364,10 @@ class _ProfilePageState extends State<ProfilePage> {
           controller: controller,
           obscureText: obscure,
           keyboardType: keyboardType,
-          // ⬅️ Ini adalah kunci untuk mode edit
           enabled: _isEditing,
           readOnly: !_isEditing,
           decoration: InputDecoration(
-            hintText: _isEditing
-                ? hint
-                : null, // ⬅️ Tampilkan hint hanya saat edit
+            hintText: _isEditing ? hint : null,
             filled: true,
             fillColor: Colors.white,
             contentPadding: EdgeInsets.symmetric(
@@ -400,7 +378,6 @@ class _ProfilePageState extends State<ProfilePage> {
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,
             ),
-            // ⬅️ Ubah style saat disabled
             disabledBorder: OutlineInputBorder(
               borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none,

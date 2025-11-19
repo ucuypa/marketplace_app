@@ -1,34 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import '../models/product.dart';
-import '../data/product_repository.dart'; // ⬅️ 1. Import repository
+import '../data/product_repository.dart';
 
 class HomeController with ChangeNotifier {
   final ProductRepository _repo;
 
-  // Constructor-nya sekarang memanggil _init()
+  // Constructor
   HomeController({ProductRepository? repo})
     : _repo = repo ?? const ProductRepository() {
-    _init(); // ⬅️ 2. Panggil _init() untuk mengambil data
+    _init(); // Panggil _init untuk mengambil data
   }
 
   // === STATE ===
-
-  // Data dari database
   List<Product> _all = [];
-
-  // State untuk UI
-  bool _isLoading = true; // ⬅️ 3. Tambahkan loading state
+  bool _isLoading = true;
   Category _selected = Category.all;
   String _query = '';
 
-  // === GETTERS ===
+  // ⬇️ State baru untuk data pengguna
+  String? _userRole;
+  String? _userName;
 
+  // === GETTERS ===
   bool get isLoading => _isLoading;
   String get searchQuery => _query;
   Category get selectedCategory => _selected;
+  String? get userRole => _userRole; // ⬅️ Getter untuk role
+  String? get userName => _userName; // ⬅️ Getter untuk nama
+
   List<Product> get popular => _all.where((p) => p.isPopular).toList();
 
-  // Getter ini sekarang me-return list yang sudah difilter
   List<Product> get filtered {
     final q = _query.trim().toLowerCase();
     return _all.where((p) {
@@ -42,28 +45,76 @@ class HomeController with ChangeNotifier {
 
   List<Product> get filteredPopular =>
       filtered.where((p) => p.isPopular).toList();
-  // === METHODS ===
 
-  // ⬅️ 5. Fungsi _init() untuk mengambil data dari repository
   Future<void> _init() async {
     _isLoading = true;
-    notifyListeners(); // Beri tahu UI untuk menampilkan loading
+    notifyListeners();
 
-    _all = await _repo.fetchAll(); // ⬅️ Ambil data dari Firestore
+    _all = await _repo.fetchAll();
+
+    try {
+      final user = auth.FirebaseAuth.instance.currentUser;
+      if (user != null) {
+        final userDoc = await FirebaseFirestore.instance
+            .collection('users')
+            .doc(user.uid)
+            .get();
+        if (userDoc.exists) {
+          _userRole = userDoc.data()?['role'];
+          _userName = userDoc.data()?['name'];
+        }
+      }
+    } catch (e) {
+      print("Error fetching user role: $e");
+    }
 
     _isLoading = false;
     notifyListeners(); // Beri tahu UI untuk menampilkan data
   }
 
-  // Panggil ini saat chip kategori di-tap
-  void setCategory(Category category) {
-    _selected = category;
-    notifyListeners(); // Update UI
+  Future<void> becomeSeller(BuildContext context) async {
+    try {
+      final user = auth.FirebaseAuth.instance.currentUser;
+      if (user == null) throw Exception("Not logged in");
+
+      // Update data di Firestore
+      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
+        {'role': 'seller'},
+      );
+
+      // Perbarui state lokal
+      _userRole = 'seller';
+      notifyListeners();
+
+      // Tampilkan notifikasi
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Selamat! Anda sekarang adalah Seller.'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+    } catch (e) {
+      print("Error becoming seller: $e");
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Gagal memperbarui role: ${e.toString()}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
   }
 
-  // Panggil ini saat search bar berubah
+  void setCategory(Category category) {
+    _selected = category;
+    notifyListeners();
+  }
+
   void setSearchQuery(String query) {
     _query = query;
-    notifyListeners(); // Update UI
+    notifyListeners();
   }
 }

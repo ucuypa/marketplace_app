@@ -60,9 +60,9 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
       // 2. Save User Role and Name to Cloud Firestore
       await FirebaseFirestore.instance.collection('users').doc(uid).set({
         'uid': uid,
-        'name': name, // <-- Added name
+        'name': name,
         'email': email,
-        'role': _selectedRole == UserRole.buyer ? 'buyer' : 'seller',
+        'role': 'buyer', // ⬅️ Semua pendaftar baru otomatis menjadi 'buyer'
         'createdAt': Timestamp.now(),
       });
 
@@ -199,43 +199,7 @@ class _RegistrationScreenState extends State<RegistrationScreen> {
                                   ),
                                 ),
                           ),
-                          const SizedBox(height: 24),
-
-                          // Role Selector
-                          _buildTextFieldLabel('Account Type'),
-                          SizedBox(
-                            width: double.infinity,
-                            // Use SegmentedButton for a modern role selector
-                            child: SegmentedButton<UserRole>(
-                              segments: const [
-                                ButtonSegment<UserRole>(
-                                  value: UserRole.buyer,
-                                  label: Text('Buyer'),
-                                  icon: Icon(Icons.shopping_bag_outlined),
-                                ),
-                                ButtonSegment<UserRole>(
-                                  value: UserRole.seller,
-                                  label: Text('Seller'),
-                                  icon: Icon(Icons.storefront_outlined),
-                                ),
-                              ],
-                              selected: {_selectedRole},
-                              onSelectionChanged: (Set<UserRole> newSelection) {
-                                setState(() {
-                                  _selectedRole = newSelection.first;
-                                });
-                              },
-                              style: SegmentedButton.styleFrom(
-                                backgroundColor: Colors.white,
-                                foregroundColor: const Color(0xFF0D63F8),
-                                selectedForegroundColor: Colors.white,
-                                selectedBackgroundColor: const Color(
-                                  0xFF0D63F8,
-                                ),
-                              ),
-                            ),
-                          ),
-                          const SizedBox(height: 32),
+                          const SizedBox(height: 50),
 
                           // Button Sign Up
                           _isLoading

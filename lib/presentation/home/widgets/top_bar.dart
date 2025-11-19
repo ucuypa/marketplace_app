@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
+import '../controllers/home_controller.dart';
 
 class TopBar extends StatelessWidget {
   const TopBar({super.key});
+
   @override
   Widget build(BuildContext context) {
+    final controller = context.watch<HomeController>();
+    final userRole = controller.userRole;
+
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
       child: Row(
         children: [
-          _circleBtn(
-            context,
-            child: Image.asset(
-              'assets/icon/Home.png',
-              width: dp(context, 24),
-              height: dp(context, 24),
-              errorBuilder: (_, __, ___) =>
-                  Icon(Icons.home_outlined, size: dp(context, 22)),
+          GestureDetector(
+            onTap: () {
+              // Jika user adalah 'buyer', jalankan fungsi becomeSeller
+              if (userRole == 'buyer') {
+                // Gunakan 'read' di dalam callback
+                context.read<HomeController>().becomeSeller(context);
+              }
+            },
+            child: _circleBtn(
+              context,
+              child: userRole == 'seller'
+                  ? Icon(Icons.dashboard_rounded, size: dp(context, 22))
+                  : Icon(Icons.storefront_rounded, size: dp(context, 22)),
             ),
           ),
 
@@ -99,6 +110,6 @@ class TopBar extends StatelessWidget {
       color: Colors.white,
       borderRadius: BorderRadius.circular(dp(ctx, 44)),
     ),
-    child: Center(child: child), 
+    child: Center(child: child),
   );
 }

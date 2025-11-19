@@ -11,18 +11,26 @@ class BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ⬅️ 1. Dapatkan padding bawah sistem
+    final double bottomPadding = MediaQuery.of(context).viewPadding.bottom;
+
     return Positioned(
       left: 0,
       right: 0,
       bottom: 0,
       child: SizedBox(
-        height: dp(context, 120),
+        height:
+            dp(context, 120) +
+            bottomPadding, // ⬅️ 2. Buat SizedBox lebih tinggi
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
             Positioned.fill(
               top: dp(context, 36),
+              bottom: 0, // ⬅️ Biarkan ini 0 agar menyentuh tepi
               child: Container(
+                // ⬅️ 3. Tambahkan padding internal ke container putih
+                padding: EdgeInsets.only(bottom: bottomPadding),
                 decoration: BoxDecoration(
                   color: Colors.white,
                   borderRadius: BorderRadius.only(
@@ -33,7 +41,8 @@ class BottomNav extends StatelessWidget {
               ),
             ),
             Positioned(
-              bottom: dp(context, 18),
+              // ⬅️ 4. Tambahkan padding ke baris ikon
+              bottom: dp(context, 18) + bottomPadding,
               left: dp(context, 30),
               right: dp(context, 30),
               child: Row(
@@ -43,29 +52,43 @@ class BottomNav extends StatelessWidget {
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(
-                        MaterialPageRoute(builder: (_) => const FavoritesPage()),
+                        MaterialPageRoute(
+                          builder: (_) => const FavoritesPage(),
+                        ),
                       );
                     },
-                    child: _icon('assets/icon/Heart.png', Icons.favorite_border, context),
+                    child: _icon(
+                      'assets/icon/Heart.png',
+                      Icons.favorite_border,
+                      context,
+                    ),
                   ),
                   SizedBox(width: dp(context, 56)),
-                  _icon('assets/icon/Notification.png', Icons.notifications_none, context),
+                  _icon(
+                    'assets/icon/Notification.png',
+                    Icons.notifications_none,
+                    context,
+                  ),
                   GestureDetector(
                     onTap: onProfileTap,
-                    child: _icon('assets/icon/Profile.png', Icons.person_outline, context),
+                    child: _icon(
+                      'assets/icon/Profile.png',
+                      Icons.person_outline,
+                      context,
+                    ),
                   ),
                 ],
               ),
             ),
 
-            // ⬇️ UBAH BAGIAN INI: bungkus FAB dengan GestureDetector
             Positioned(
-              bottom: dp(context, 52),
+              // ⬅️ 5. Tambahkan padding ke Tombol FAB
+              bottom: dp(context, 52) + bottomPadding,
               child: GestureDetector(
                 onTap: () {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(builder: (_) => const CartPage()),
-                  );
+                  Navigator.of(
+                    context,
+                  ).push(MaterialPageRoute(builder: (_) => const CartPage()));
                 },
                 child: Container(
                   width: dp(context, 56),
@@ -78,7 +101,7 @@ class BottomNav extends StatelessWidget {
                         color: kPrimary.withOpacity(.60),
                         blurRadius: dp(context, 24),
                         offset: Offset(0, dp(context, 8)),
-                      )
+                      ),
                     ],
                   ),
                   child: Center(
@@ -102,7 +125,8 @@ class BottomNav extends StatelessWidget {
     );
   }
 
-  Widget _icon(String asset, IconData fallback, BuildContext ctx) => Image.asset(
+  Widget _icon(String asset, IconData fallback, BuildContext ctx) =>
+      Image.asset(
         asset,
         width: dp(ctx, 24),
         height: dp(ctx, 24),

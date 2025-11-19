@@ -23,6 +23,7 @@ class HomePage extends StatelessWidget {
       child: Scaffold(
         backgroundColor: kScaffoldBg,
         body: SafeArea(
+          bottom: false,
           child: LayoutBuilder(
             builder: (context, c) {
               final s = calcScale(c);
@@ -31,35 +32,42 @@ class HomePage extends StatelessWidget {
                 child: Builder(
                   builder: (ctx) => Stack(
                     children: [
-                      // ===== CONTENT =====
                       Positioned.fill(
-                        child: Consumer<HomeController>(
-                          builder: (context, controller, child) {
-                            if (controller.isLoading) {
-                              return const Center(
-                                child: CircularProgressIndicator(),
-                              );
-                            }
-                            return ListView(
-                              padding: EdgeInsets.only(bottom: dp(ctx, 120)),
-                              children: [
-                                SizedBox(height: dp(ctx, 12)),
-                                const TopBar(),
-                                SizedBox(height: dp(ctx, 24)),
-                                const hp.SearchBar(),
-                                SizedBox(height: dp(ctx, 18)),
-                                const CategoryChips(),
-                                SizedBox(height: dp(ctx, 12)),
-                                const NewArrivalsCard(),
-                                SizedBox(height: dp(ctx, 24)),
-                                const PopularRow(),
-                                SizedBox(height: dp(ctx, 72)),
-                              ],
-                            );
-                          },
+                        child: Padding(
+                          padding: EdgeInsets.only(bottom: dp(ctx, 100)),
+                          child: Column(
+                            children: [
+                              SizedBox(height: dp(ctx, 12)),
+                              const TopBar(),
+                              SizedBox(height: dp(ctx, 24)),
+                              const hp.SearchBar(),
+                              SizedBox(height: dp(ctx, 18)),
+                              const CategoryChips(),
+                              SizedBox(height: dp(ctx, 12)),
+
+                              Expanded(
+                                child: Consumer<HomeController>(
+                                  builder: (context, controller, child) {
+                                    if (controller.isLoading) {
+                                      return const Center(
+                                        child: CircularProgressIndicator(),
+                                      );
+                                    }
+                                    return ListView(
+                                      children: [
+                                        const NewArrivalsCard(),
+                                        SizedBox(height: dp(ctx, 24)),
+                                        const PopularRow(),
+                                        SizedBox(height: dp(ctx, 72)),
+                                      ],
+                                    );
+                                  },
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      // Bottom Nav
                       BottomNav(
                         onProfileTap: () {
                           Navigator.push(

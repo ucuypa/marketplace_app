@@ -73,9 +73,8 @@ class PopularRow extends StatelessWidget {
                 childAspectRatio: (160 / 210),
               ),
               itemBuilder: (context, index) {
-                // ⬅️ 6. Ubah dokumen Firestore menjadi objek Product
                 final doc = docs[index];
-                final p = Product.fromFirestore(doc); // ⬅️ Ini adalah kuncinya
+                final p = Product.fromFirestore(doc);
 
                 return GestureDetector(
                   onTap: () {
