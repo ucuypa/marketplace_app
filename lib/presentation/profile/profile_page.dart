@@ -8,6 +8,7 @@ import '../shared/ui_constants.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import '../manageproduct/ManageProductsPage.dart';
+import '../history/history.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -322,6 +323,41 @@ class _ProfilePageState extends State<ProfilePage> {
                               ),
                             ),
                           ),
+                          SizedBox(height: dp(ctx, 20)),
+
+                          // ===== ORDER HISTORY BUTTON =====
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton(
+                              style: OutlinedButton.styleFrom(
+                                side: const BorderSide(
+                                    color: Colors.blueAccent),
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: dp(ctx, 14),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) =>historyPage(),
+                                  ),
+                                );
+                              },
+                              child: const Text(
+                                'Order History',
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.blueAccent,
+                                ),
+                              ),
+                            ),
+                          ),
+
                           SizedBox(height: dp(ctx, 20)),
                           TextButton(
                             onPressed: _signOut,
