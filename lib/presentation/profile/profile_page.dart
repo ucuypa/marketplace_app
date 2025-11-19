@@ -8,6 +8,7 @@ import '../shared/ui_constants.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import '../manageproduct/ManageProductsPage.dart';
+import '../address_user/address_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -319,6 +320,49 @@ class _ProfilePageState extends State<ProfilePage> {
                                     color: Colors.white,
                                   ),
                                 ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height: dp(ctx, 20)),
+                          SizedBox(
+                            width: double.infinity,
+                            child: ElevatedButton(
+                              style: ElevatedButton.styleFrom(
+                                backgroundColor:
+                                    Colors.white, // White background
+                                foregroundColor: Colors.black, // Black text
+                                elevation: 0,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(16),
+                                  side: const BorderSide(
+                                    color: Colors.grey,
+                                  ), // Light grey border
+                                ),
+                                padding: EdgeInsets.symmetric(
+                                  vertical: dp(ctx, 16),
+                                ),
+                              ),
+                              onPressed: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const AddressListPage(),
+                                  ),
+                                );
+                              },
+                              child: const Row(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(Icons.location_on_outlined, size: 20),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Manage Addresses',
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
