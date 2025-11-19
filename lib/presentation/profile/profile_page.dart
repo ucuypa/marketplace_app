@@ -3,11 +3,13 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 import 'dart:io';
+import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
+import 'package:firebase_storage/firebase_storage.dart';
+
 import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import '../manageproduct/ManageProductsPage.dart';
+import '../history/history.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -38,6 +40,7 @@ class _ProfilePageState extends State<ProfilePage> {
     super.dispose();
   }
 
+  // ===== READ PROFILE FROM FIRESTORE =====
   Future<void> _fetchUserData() async {
     setState(() => _isLoading = true);
     try {
@@ -55,7 +58,7 @@ class _ProfilePageState extends State<ProfilePage> {
         final data = userDoc.data() as Map<String, dynamic>;
 
         nameController.text = data['name'] ?? '';
-        passwordController.text = '********';
+        passwordController.text = '********'; // placeholder saja
         _profilePicUrl = data['profilePicUrl'];
         _userRole = data['role'];
       }
@@ -66,13 +69,13 @@ class _ProfilePageState extends State<ProfilePage> {
   }
 
   void _showErrorSnackbar(String message) {
-    if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
-      );
-    }
+    if (!mounted) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
+    );
   }
 
+  // ===== UPDATE PROFILE =====
   Future<void> _saveProfile() async {
     setState(() => _isLoading = true);
     FocusManager.instance.primaryFocus?.unfocus();
@@ -84,9 +87,10 @@ class _ProfilePageState extends State<ProfilePage> {
       final newName = nameController.text;
       final newPassword = passwordController.text;
 
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {'name': newName},
-      );
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(user.uid)
+          .update({'name': newName});
 
       if (newPassword.isNotEmpty && newPassword != '********') {
         await user.updatePassword(newPassword);
@@ -116,6 +120,7 @@ class _ProfilePageState extends State<ProfilePage> {
     });
   }
 
+  // ===== UPLOAD PROFILE PICTURE =====
   Future<void> _uploadProfilePicture() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -143,9 +148,10 @@ class _ProfilePageState extends State<ProfilePage> {
 
       final String downloadURL = await storageRef.getDownloadURL();
 
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'profilePicUrl': downloadURL,
-      });
+      await FirebaseFirestore.instance
+          .collection('users')
+          .doc(uid)
+          .update({'profilePicUrl': downloadURL});
 
       setState(() {
         _profilePicUrl = downloadURL;
@@ -156,17 +162,18 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _isLoading = false);
   }
 
+  // ===== LOG OUT =====
   Future<void> _signOut() async {
     try {
       await auth.FirebaseAuth.instance.signOut();
-      if (mounted) {
-        Navigator.popUntil(context, (route) => route.isFirst);
-      }
+      if (!mounted) return;
+      Navigator.popUntil(context, (route) => route.isFirst);
     } catch (e) {
       _showErrorSnackbar('Failed to sign out: ${e.toString()}');
     }
   }
 
+  // ===== UI =====
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -186,179 +193,234 @@ class _ProfilePageState extends State<ProfilePage> {
         actions: [
           _isEditing
               ? TextButton(
-                  onPressed: _saveProfile,
-                  child: const Text(
-                    'Save',
-                    style: TextStyle(color: Colors.blueAccent, fontSize: 16),
-                  ),
-                )
+            onPressed: _saveProfile,
+            child: const Text(
+              'Save',
+              style: TextStyle(color: Colors.blueAccent, fontSize: 16),
+            ),
+          )
               : IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blueAccent),
-                  onPressed: () {
-                    setState(() {
-                      _isEditing = true;
-                      passwordController.clear();
-                    });
-                  },
-                ),
+            icon: const Icon(Icons.edit, color: Colors.blueAccent),
+            onPressed: () {
+              setState(() {
+                _isEditing = true;
+                passwordController.clear();
+              });
+            },
+          ),
         ],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : SafeArea(
-              child: LayoutBuilder(
-                builder: (context, c) {
-                  final s = calcScale(c);
-                  return Scale(
-                    s: s,
-                    child: Builder(
-                      builder: (ctx) => ListView(
-                        padding: EdgeInsets.all(dp(ctx, 24)),
+        child: LayoutBuilder(
+          builder: (context, c) {
+            final s = calcScale(c);
+            return Scale(
+              s: s,
+              child: Builder(
+                builder: (ctx) => ListView(
+                  padding: EdgeInsets.all(dp(ctx, 24)),
+                  children: [
+                    // ===== AVATAR =====
+                    Center(
+                      child: Stack(
+                        alignment: Alignment.bottomRight,
                         children: [
-                          Center(
-                            child: Stack(
-                              alignment: Alignment.bottomRight,
-                              children: [
-                                CircleAvatar(
-                                  radius: dp(ctx, 50),
-                                  backgroundColor: Colors.white,
-                                  child: _profilePicUrl == null
-                                      ? Icon(Icons.person, size: dp(ctx, 48))
-                                      : ClipOval(
-                                          child: Image.network(
-                                            _profilePicUrl!,
-                                            width: dp(ctx, 100),
-                                            height: dp(ctx, 100),
-                                            fit: BoxFit.cover,
-                                            loadingBuilder:
-                                                (context, child, progress) {
-                                                  return progress == null
-                                                      ? child
-                                                      : const Center(
-                                                          child:
-                                                              CircularProgressIndicator(),
-                                                        );
-                                                },
-                                            errorBuilder: (_, __, ___) => Icon(
-                                              Icons.person,
-                                              size: dp(ctx, 48),
-                                            ),
-                                          ),
-                                        ),
-                                ),
-                                Visibility(
-                                  visible: _isEditing,
-                                  child: GestureDetector(
-                                    onTap: _uploadProfilePicture,
-                                    child: Container(
-                                      width: dp(ctx, 32),
-                                      height: dp(ctx, 32),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.blueAccent,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                          SizedBox(height: dp(ctx, 16)),
-                          Center(
-                            child: Text(
-                              nameController.text,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 20,
-                              ),
-                            ),
-                          ),
-                          SizedBox(height: dp(ctx, 32)),
-                          _editableField('Full Name', nameController, ctx),
-                          SizedBox(height: dp(ctx, 20)),
-                          _editableField(
-                            'Password',
-                            passwordController,
-                            ctx,
-                            obscure: true,
-                            hint: 'Enter new password (optional)',
-                          ),
-                          SizedBox(height: dp(ctx, 40)),
-                          Visibility(
-                            visible: _userRole == 'seller',
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: dp(ctx, 16),
-                                  ),
-                                ),
-                                onPressed: () {
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (_) => const ManageProductPage(),
-                                    ),
+                          CircleAvatar(
+                            radius: dp(ctx, 50),
+                            backgroundColor: Colors.white,
+                            child: _profilePicUrl == null
+                                ? Icon(Icons.person, size: dp(ctx, 48))
+                                : ClipOval(
+                              child: Image.network(
+                                _profilePicUrl!,
+                                width: dp(ctx, 100),
+                                height: dp(ctx, 100),
+                                fit: BoxFit.cover,
+                                loadingBuilder:
+                                    (context, child, progress) {
+                                  return progress == null
+                                      ? child
+                                      : const Center(
+                                    child:
+                                    CircularProgressIndicator(),
                                   );
                                 },
-                                child: const Text(
-                                  'Manage Products',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
+                                errorBuilder: (_, __, ___) => Icon(
+                                  Icons.person,
+                                  size: dp(ctx, 48),
                                 ),
                               ),
                             ),
                           ),
-                          SizedBox(height: dp(ctx, 20)),
-                          TextButton(
-                            onPressed: _signOut,
-                            child: const Text(
-                              'Log Out',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
+                          Visibility(
+                            visible: _isEditing,
+                            child: GestureDetector(
+                              onTap: _uploadProfilePicture,
+                              child: Container(
+                                width: dp(ctx, 32),
+                                height: dp(ctx, 32),
+                                decoration: const BoxDecoration(
+                                  color: Colors.blueAccent,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: const Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
                               ),
                             ),
                           ),
-                          SizedBox(height: dp(ctx, 20)),
                         ],
                       ),
                     ),
-                  );
-                },
+
+                    SizedBox(height: dp(ctx, 16)),
+
+                    // ===== DISPLAY NAME =====
+                    Center(
+                      child: Text(
+                        nameController.text,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.w600,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: dp(ctx, 32)),
+
+                    // ===== EDITABLE FIELDS =====
+                    _editableField('Full Name', nameController, ctx),
+                    SizedBox(height: dp(ctx, 20)),
+                    _editableField(
+                      'Password',
+                      passwordController,
+                      ctx,
+                      obscure: true,
+                      hint: 'Enter new password (optional)',
+                      keyboardType: TextInputType.visiblePassword,
+                    ),
+
+                    SizedBox(height: dp(ctx, 40)),
+
+                    // ===== MANAGE PRODUCTS (SELLER ONLY) =====
+                    Visibility(
+                      visible: _userRole == 'seller',
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton(
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Colors.blueAccent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              vertical: dp(ctx, 16),
+                            ),
+                          ),
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (_) =>
+                                const ManageProductPage(),
+                              ),
+                            );
+                          },
+                          child: const Text(
+                            'Manage Products',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: dp(ctx, 20)),
+
+                    // ===== ORDER HISTORY BUTTON =====
+                    SizedBox(
+                      width: double.infinity,
+                      child: OutlinedButton(
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                              color: Colors.blueAccent),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          padding: EdgeInsets.symmetric(
+                            vertical: dp(ctx, 14),
+                          ),
+                        ),
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) =>historyPage(),
+                            ),
+                          );
+                        },
+                        child: const Text(
+                          'Order History',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.blueAccent,
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: dp(ctx, 20)),
+
+                    // ===== LOG OUT =====
+                    TextButton(
+                      onPressed: _signOut,
+                      child: const Text(
+                        'Log Out',
+                        style: TextStyle(
+                          color: Colors.red,
+                          fontSize: 16,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height: dp(ctx, 20)),
+                  ],
+                ),
               ),
-            ),
+            );
+          },
+        ),
+      ),
     );
   }
 
+  // ===== HELPER TEXT FIELD =====
   Widget _editableField(
-    String label,
-    TextEditingController controller,
-    BuildContext ctx, {
-    bool obscure = false,
-    String? hint,
-    TextInputType keyboardType = TextInputType.text,
-  }) {
+      String label,
+      TextEditingController controller,
+      BuildContext ctx, {
+        bool obscure = false,
+        String? hint,
+        TextInputType keyboardType = TextInputType.text,
+      }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 16,
+          ),
         ),
         SizedBox(height: dp(ctx, 8)),
         TextField(
