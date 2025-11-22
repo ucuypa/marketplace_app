@@ -27,8 +27,8 @@ class HomeController with ChangeNotifier {
   bool get isLoading => _isLoading;
   String get searchQuery => _query;
   Category get selectedCategory => _selected;
-  String? get userRole => _userRole; // ⬅️ Getter untuk role
-  String? get userName => _userName; // ⬅️ Getter untuk nama
+  String? get userRole => _userRole;
+  String? get userName => _userName;
 
   List<Product> get popular => _all.where((p) => p.isPopular).toList();
 

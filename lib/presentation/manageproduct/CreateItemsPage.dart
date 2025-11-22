@@ -288,13 +288,9 @@ class _CreateItemPageState extends State<CreateItemPage> {
 
   void _showErrorSnackbar(String s) {
     void _showErrorSnackbar(String message) {
-      // Cek apakah widget masih ada di tree sebelum menampilkan snackbar
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(message),
-            backgroundColor: Colors.red, // Beri warna merah untuk error
-          ),
+          SnackBar(content: Text(message), backgroundColor: Colors.red),
         );
       }
     }
