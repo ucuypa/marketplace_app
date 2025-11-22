@@ -1,20 +1,18 @@
 import 'package:flutter/foundation.dart';
 import '../../home/models/product.dart';
 
-@immutable
 class CartItem {
+  final String? id;
   final Product product;
-  final String size; // contoh: 'L' atau '40'
   final int qty;
+  final String size;
 
-  const CartItem({required this.product, required this.size, this.qty = 1});
+  CartItem({this.id, required this.product, this.qty = 1, required this.size});
 
-  double get unitPrice => product.price;
-  double get lineTotal => unitPrice * qty;
+  String get key => '${product.id}_$size';
+  double get lineTotal => product.price * qty;
 
-  // buat key unik per kombinasi product + varian
-  String get key => '${product.id}::$size::';
-
-  CartItem copyWith({int? qty}) =>
-      CartItem(product: product, size: size, qty: qty ?? this.qty);
+  CartItem copyWith({int? qty}) {
+    return CartItem(id: id, product: product, size: size, qty: qty ?? this.qty);
+  }
 }

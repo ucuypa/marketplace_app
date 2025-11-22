@@ -4,10 +4,14 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
 import 'address_model.dart';
-import 'add_edit_address_page.dart'; // We will create this next
+import 'add_edit_address_page.dart';
 
 class AddressListPage extends StatelessWidget {
-  const AddressListPage({super.key});
+  // ⭐️ 1. Add this parameter
+  final bool isSelectionMode;
+
+  // ⭐️ 2. Update the constructor
+  const AddressListPage({super.key, this.isSelectionMode = false});
 
   @override
   Widget build(BuildContext context) {
@@ -22,13 +26,17 @@ class AddressListPage extends StatelessWidget {
     return Scaffold(
       backgroundColor: kScaffoldBg,
       appBar: AppBar(
+        // ⭐️ 3. Dynamic Title
+        title: Text(
+          isSelectionMode ? 'Select Address' : 'Home Address',
+          style: const TextStyle(
+            color: kTextPrimary,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
         backgroundColor: kScaffoldBg,
         elevation: 0,
         centerTitle: true,
-        title: const Text(
-          'Home Address',
-          style: TextStyle(color: kTextPrimary, fontWeight: FontWeight.bold),
-        ),
         leading: IconButton(
           icon: const Icon(
             Icons.arrow_back_ios_new_rounded,
@@ -46,7 +54,6 @@ class AddressListPage extends StatelessWidget {
               child: Builder(
                 builder: (ctx) => Column(
                   children: [
-                    // LIST OF ADDRESSES
                     Expanded(
                       child: StreamBuilder<QuerySnapshot>(
                         stream: addressStream,
@@ -78,14 +85,29 @@ class AddressListPage extends StatelessWidget {
                               final address = AddressModel.fromFirestore(
                                 docs[index],
                               );
-                              return _AddressCard(ctx: ctx, address: address);
+
+                              // ⭐️ 4. Wrap card in GestureDetector for selection
+                              return GestureDetector(
+                                onTap: () {
+                                  if (isSelectionMode) {
+                                    // Return the address to CheckoutPage
+                                    Navigator.pop(context, address);
+                                  }
+                                },
+                                child: _AddressCard(
+                                  ctx: ctx,
+                                  address: address,
+                                  isSelectionMode:
+                                      isSelectionMode, // Pass mode down
+                                ),
+                              );
                             },
                           );
                         },
                       ),
                     ),
 
-                    // BOTTOM BUTTON
+                    // Add New Address Button (Visible in both modes)
                     Padding(
                       padding: EdgeInsets.all(dp(ctx, 20)),
                       child: SizedBox(
@@ -108,8 +130,7 @@ class AddressListPage extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(dp(ctx, 25)),
                             ),
-                            backgroundColor:
-                                Colors.blue.shade50, // Light blue fill
+                            backgroundColor: Colors.blue.shade50,
                           ),
                           child: Text(
                             'Add New Address',
@@ -137,8 +158,13 @@ class AddressListPage extends StatelessWidget {
 class _AddressCard extends StatelessWidget {
   final BuildContext ctx;
   final AddressModel address;
+  final bool isSelectionMode; // ⭐️ 5. Add parameter here too
 
-  const _AddressCard({required this.ctx, required this.address});
+  const _AddressCard({
+    required this.ctx,
+    required this.address,
+    required this.isSelectionMode,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -147,7 +173,13 @@ class _AddressCard extends StatelessWidget {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(dp(ctx, 12)),
-        border: Border.all(color: Colors.grey.shade300),
+        border: Border.all(
+          // ⭐️ 6. Highlight border if in selection mode
+          color: isSelectionMode
+              ? Colors.blueAccent.withOpacity(0.5)
+              : Colors.grey.shade300,
+          width: isSelectionMode ? 2 : 1,
+        ),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -170,29 +202,34 @@ class _AddressCard extends StatelessWidget {
             '${address.city}, ${address.zip}',
             style: inter(ctx, 13, w: FontWeight.w400, color: kTextPrimary),
           ),
-          SizedBox(height: dp(ctx, 12)),
 
-          // Edit Button
-          SizedBox(
-            width: double.infinity,
-            height: dp(ctx, 36),
-            child: OutlinedButton(
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => AddEditAddressPage(address: address),
+          // ⭐️ 7. Hide 'Edit' button in selection mode to prevent confusion
+          if (!isSelectionMode) ...[
+            SizedBox(height: dp(ctx, 12)),
+            SizedBox(
+              width: double.infinity,
+              height: dp(ctx, 36),
+              child: OutlinedButton(
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => AddEditAddressPage(address: address),
+                    ),
+                  );
+                },
+                style: OutlinedButton.styleFrom(
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(dp(ctx, 8)),
                   ),
-                );
-              },
-              style: OutlinedButton.styleFrom(
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(dp(ctx, 8)),
+                ),
+                child: const Text(
+                  'Edit',
+                  style: TextStyle(color: kTextPrimary),
                 ),
               ),
-              child: const Text('Edit', style: TextStyle(color: kTextPrimary)),
             ),
-          ),
+          ],
         ],
       ),
     );

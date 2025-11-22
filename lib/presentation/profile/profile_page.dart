@@ -8,7 +8,7 @@ import '../shared/ui_constants.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import '../manageproduct/ManageProductsPage.dart';
-import '../history/history.dart';
+import '../address_user/address_page.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -43,9 +43,7 @@ class _ProfilePageState extends State<ProfilePage> {
     setState(() => _isLoading = true);
     try {
       final auth.User? user = auth.FirebaseAuth.instance.currentUser;
-      if (user == null) {
-        throw Exception("No user logged in");
-      }
+      if (user == null) throw Exception("No user logged in");
 
       final DocumentSnapshot userDoc = await FirebaseFirestore.instance
           .collection('users')
@@ -54,7 +52,6 @@ class _ProfilePageState extends State<ProfilePage> {
 
       if (userDoc.exists) {
         final data = userDoc.data() as Map<String, dynamic>;
-
         nameController.text = data['name'] ?? '';
         passwordController.text = '********';
         _profilePicUrl = data['profilePicUrl'];
@@ -101,7 +98,7 @@ class _ProfilePageState extends State<ProfilePage> {
     } on auth.FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         _showErrorSnackbar(
-          'This operation is sensitive and requires recent login. Please log out and log in again.',
+          'Requires recent login. Please log out and log in again.',
         );
       } else {
         _showErrorSnackbar('Error: ${e.message}');
@@ -120,7 +117,6 @@ class _ProfilePageState extends State<ProfilePage> {
   Future<void> _uploadProfilePicture() async {
     final ImagePicker picker = ImagePicker();
     final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-
     if (image == null) return;
 
     setState(() => _isLoading = true);
@@ -143,7 +139,6 @@ class _ProfilePageState extends State<ProfilePage> {
       }
 
       final String downloadURL = await storageRef.getDownloadURL();
-
       await FirebaseFirestore.instance.collection('users').doc(uid).update({
         'profilePicUrl': downloadURL,
       });
@@ -161,7 +156,7 @@ class _ProfilePageState extends State<ProfilePage> {
     try {
       await auth.FirebaseAuth.instance.signOut();
       if (mounted) {
-        Navigator.popUntil(context, (route) => route.isFirst);
+        Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       _showErrorSnackbar('Failed to sign out: ${e.toString()}');
@@ -178,10 +173,13 @@ class _ProfilePageState extends State<ProfilePage> {
         centerTitle: true,
         title: const Text(
           'Profile',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black),
         ),
         leading: IconButton(
-          icon: const Icon(Icons.arrow_back_ios_new_rounded),
+          icon: const Icon(
+            Icons.arrow_back_ios_new_rounded,
+            color: Colors.black,
+          ),
           onPressed: () => Navigator.pop(context),
         ),
         actions: [
@@ -194,7 +192,10 @@ class _ProfilePageState extends State<ProfilePage> {
                   ),
                 )
               : IconButton(
-                  icon: const Icon(Icons.edit, color: Colors.blueAccent),
+                  icon: const Icon(
+                    Icons.edit_outlined,
+                    color: Colors.blueAccent,
+                  ), // Pencil icon
                   onPressed: () {
                     setState(() {
                       _isEditing = true;
@@ -216,6 +217,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       builder: (ctx) => ListView(
                         padding: EdgeInsets.all(dp(ctx, 24)),
                         children: [
+                          // ===== 1. PROFILE PICTURE =====
                           Center(
                             child: Stack(
                               alignment: Alignment.bottomRight,
@@ -224,7 +226,11 @@ class _ProfilePageState extends State<ProfilePage> {
                                   radius: dp(ctx, 50),
                                   backgroundColor: Colors.white,
                                   child: _profilePicUrl == null
-                                      ? Icon(Icons.person, size: dp(ctx, 48))
+                                      ? Icon(
+                                          Icons.person,
+                                          size: dp(ctx, 48),
+                                          color: Colors.grey,
+                                        )
                                       : ClipOval(
                                           child: Image.network(
                                             _profilePicUrl!,
@@ -232,14 +238,16 @@ class _ProfilePageState extends State<ProfilePage> {
                                             height: dp(ctx, 100),
                                             fit: BoxFit.cover,
                                             loadingBuilder:
-                                                (context, child, progress) {
-                                                  return progress == null
-                                                      ? child
-                                                      : const Center(
-                                                          child:
-                                                              CircularProgressIndicator(),
-                                                        );
-                                                },
+                                                (
+                                                  context,
+                                                  child,
+                                                  progress,
+                                                ) => progress == null
+                                                ? child
+                                                : const Center(
+                                                    child:
+                                                        CircularProgressIndicator(),
+                                                  ),
                                             errorBuilder: (_, __, ___) => Icon(
                                               Icons.person,
                                               size: dp(ctx, 48),
@@ -269,17 +277,21 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),
                           ),
-                          SizedBox(height: dp(ctx, 16)),
+
+                          SizedBox(height: dp(ctx, 12)),
                           Center(
                             child: Text(
                               nameController.text,
                               style: const TextStyle(
-                                fontWeight: FontWeight.w600,
+                                fontWeight: FontWeight.bold,
                                 fontSize: 20,
+                                color: Colors.black,
                               ),
                             ),
                           ),
+
                           SizedBox(height: dp(ctx, 32)),
+
                           _editableField('Full Name', nameController, ctx),
                           SizedBox(height: dp(ctx, 20)),
                           _editableField(
@@ -289,22 +301,30 @@ class _ProfilePageState extends State<ProfilePage> {
                             obscure: true,
                             hint: 'Enter new password (optional)',
                           ),
-                          SizedBox(height: dp(ctx, 40)),
-                          Visibility(
-                            visible: _userRole == 'seller',
-                            child: SizedBox(
-                              width: double.infinity,
-                              child: ElevatedButton(
-                                style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blueAccent,
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(16),
-                                  ),
-                                  padding: EdgeInsets.symmetric(
-                                    vertical: dp(ctx, 16),
-                                  ),
+
+                          SizedBox(height: dp(ctx, 24)),
+                          const Divider(thickness: 1, color: Color(0xFFEAEAEA)),
+                          SizedBox(height: dp(ctx, 16)),
+                          _menuItem(
+                            ctx,
+                            title: 'Manage Address',
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => const AddressListPage(),
                                 ),
-                                onPressed: () {
+                              );
+                            },
+                          ),
+
+                          if (_userRole == 'seller')
+                            Padding(
+                              padding: EdgeInsets.only(top: dp(ctx, 16)),
+                              child: _menuItem(
+                                ctx,
+                                title: 'Manage Product',
+                                onTap: () {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
@@ -312,61 +332,20 @@ class _ProfilePageState extends State<ProfilePage> {
                                     ),
                                   );
                                 },
-                                child: const Text(
-                                  'Manage Products',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                  ),
-                                ),
                               ),
                             ),
-                          ),
-                          SizedBox(height: dp(ctx, 20)),
 
-                          // ===== ORDER HISTORY BUTTON =====
-                          SizedBox(
-                            width: double.infinity,
-                            child: OutlinedButton(
-                              style: OutlinedButton.styleFrom(
-                                side: const BorderSide(
-                                    color: Colors.blueAccent),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(16),
-                                ),
-                                padding: EdgeInsets.symmetric(
-                                  vertical: dp(ctx, 14),
-                                ),
-                              ),
-                              onPressed: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (_) =>historyPage(),
-                                  ),
-                                );
-                              },
+                          SizedBox(height: dp(ctx, 60)),
+                          Center(
+                            child: TextButton(
+                              onPressed: _signOut,
                               child: const Text(
-                                'Order History',
+                                'Log out',
                                 style: TextStyle(
+                                  color: Colors.red,
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
-                                  color: Colors.blueAccent,
                                 ),
-                              ),
-                            ),
-                          ),
-
-                          SizedBox(height: dp(ctx, 20)),
-                          TextButton(
-                            onPressed: _signOut,
-                            child: const Text(
-                              'Log Out',
-                              style: TextStyle(
-                                color: Colors.red,
-                                fontSize: 16,
-                                fontWeight: FontWeight.w600,
                               ),
                             ),
                           ),
@@ -387,20 +366,22 @@ class _ProfilePageState extends State<ProfilePage> {
     BuildContext ctx, {
     bool obscure = false,
     String? hint,
-    TextInputType keyboardType = TextInputType.text,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(
           label,
-          style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+          style: const TextStyle(
+            fontWeight: FontWeight.w600,
+            fontSize: 14,
+            color: Colors.black54,
+          ),
         ),
         SizedBox(height: dp(ctx, 8)),
         TextField(
           controller: controller,
           obscureText: obscure,
-          keyboardType: keyboardType,
           enabled: _isEditing,
           readOnly: !_isEditing,
           decoration: InputDecoration(
@@ -412,16 +393,48 @@ class _ProfilePageState extends State<ProfilePage> {
               horizontal: dp(ctx, 16),
             ),
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
             disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(12),
               borderSide: BorderSide.none,
             ),
           ),
         ),
       ],
+    );
+  }
+
+  Widget _menuItem(
+    BuildContext ctx, {
+    required String title,
+    required VoidCallback onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      behavior: HitTestBehavior.opaque,
+      child: Container(
+        padding: EdgeInsets.symmetric(vertical: dp(ctx, 12)),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+                color: Colors.black87,
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              size: 16,
+              color: Colors.black54,
+            ),
+          ],
+        ),
+      ),
     );
   }
 }

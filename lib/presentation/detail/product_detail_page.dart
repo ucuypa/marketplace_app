@@ -11,7 +11,6 @@ import 'application/detail_controller.dart';
 
 // widgets
 import 'widgets/detail_app_bar.dart';
-import 'widgets/product_hero.dart';
 import 'widgets/section_card.dart';
 import 'widgets/size_selector.dart';
 import 'widgets/price_cta_bar.dart';
@@ -46,10 +45,49 @@ class ProductDetailPage extends StatelessWidget {
                           ),
                         ),
 
-                        // Hero image
+                        // Hero Image (Network)
                         Consumer<DetailController>(
-                          builder: (_, vm, __) =>
-                              ProductHero(imageAsset: vm.product.imageAsset),
+                          builder: (_, vm, __) {
+                            final imageUrl = vm.product.imageAsset;
+                            return Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: dp(ctx, 20),
+                              ),
+                              child: Container(
+                                height: dp(ctx, 240),
+                                width: double.infinity,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(
+                                    dp(ctx, 24),
+                                  ),
+                                ),
+                                child: (imageUrl.isEmpty)
+                                    ? Icon(
+                                        Icons.image_not_supported,
+                                        size: dp(ctx, 40),
+                                        color: Colors.grey,
+                                      )
+                                    : Image.network(
+                                        imageUrl,
+                                        height: dp(ctx, 180),
+                                        fit: BoxFit.contain,
+                                        loadingBuilder: (context, child, progress) {
+                                          return progress == null
+                                              ? child
+                                              : const Center(
+                                                  child:
+                                                      CircularProgressIndicator(),
+                                                );
+                                        },
+                                        errorBuilder: (_, __, ___) => Icon(
+                                          Icons.image_not_supported,
+                                          size: dp(ctx, 40),
+                                        ),
+                                      ),
+                              ),
+                            );
+                          },
                         ),
 
                         SizedBox(height: dp(ctx, 16)),
@@ -91,8 +129,6 @@ class ProductDetailPage extends StatelessWidget {
                                 SizedBox(height: dp(ctx, 8)),
                                 Text(
                                   vm.product.description,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
                                   style: inter(
                                     ctx,
                                     13,
@@ -103,28 +139,77 @@ class ProductDetailPage extends StatelessWidget {
                                 ),
                                 SizedBox(height: dp(ctx, 16)),
 
-                                // Size selector
-                                SizeSelector(
-                                  sizes: vm.sizes,
-                                  selected: vm.selectedSize,
-                                  onChanged: vm.setSize,
-                                ),
-                                SizedBox(height: dp(ctx, 16)),
+                                // Size selector (Only if sizes exist)
+                                if (vm.sizes.isNotEmpty) ...[
+                                  Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      const Text(
+                                        "Select Size:",
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                        ),
+                                      ),
+                                      if (vm.selectedSize != null)
+                                        Text(
+                                          "Stock: ${vm.stockForSelectedSize}",
+                                          style: const TextStyle(
+                                            fontSize: 12,
+                                            color: Colors.green,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                  SizedBox(height: dp(ctx, 8)),
+                                  SizeSelector(
+                                    sizes: vm.sizes,
+                                    selected: vm.selectedSize!,
+                                    onChanged: vm.setSize,
+                                  ),
+                                  SizedBox(height: dp(ctx, 16)),
+                                ],
 
                                 // Price + CTA
                                 PriceCtaBar(
                                   priceText: vm.product.priceText,
                                   onAddToCart: () {
-                                    // ambil varian terpilih dari DetailController
-                                    final size = vm.selectedSize;
+                                    // 1. Check if size is selected (if product has sizes)
+                                    if (vm.sizes.isNotEmpty &&
+                                        vm.selectedSize == null) {
+                                      ScaffoldMessenger.of(ctx).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Please select a size"),
+                                        ),
+                                      );
+                                      return;
+                                    }
 
-                                    // masukkan ke cart
+                                    // 2. Check Stock
+                                    // If sizes exist, check stock for selected size.
+                                    // If no sizes (digital), assume stock available or check 'product.stock'
+                                    int availableStock = vm.sizes.isNotEmpty
+                                        ? vm.stockForSelectedSize
+                                        : vm.product.stock;
+
+                                    if (availableStock <= 0) {
+                                      ScaffoldMessenger.of(ctx).showSnackBar(
+                                        const SnackBar(
+                                          content: Text("Out of stock!"),
+                                        ),
+                                      );
+                                      return;
+                                    }
+
+                                    // 3. Add to Cart
                                     context.read<CartController>().add(
                                       vm.product,
-                                      size: size,
+                                      // ⭐️ Use '!' because we already checked it's not null above
+                                      // Or use empty string for products without sizes
+                                      size: vm.selectedSize ?? '',
                                     );
 
-                                    // arahkan ke CartPage
                                     Navigator.of(ctx).push(
                                       MaterialPageRoute(
                                         builder: (_) => const CartPage(),

@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/gestures.dart'; // enable mouse/touch drag on web
-import 'package:provider/provider.dart';               
+import 'package:flutter/gestures.dart';
+import 'package:provider/provider.dart';
 import '../../shared/scale.dart';
-import '../controllers/home_controller.dart';         
-import '../models/product.dart';                      // ⬅️ enum Category
+import '../../shared/ui_constants.dart'; // Ensure 'inter' is defined here
+import '../controllers/home_controller.dart';
 
 class CategoryChips extends StatelessWidget {
   const CategoryChips({super.key});
@@ -11,18 +11,24 @@ class CategoryChips extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final s = Scale.of(context).s;
-    final selected = context.watch<HomeController>().selectedCategory; // ⬅️ baca state
+    // ⬅️ This is now a String? (null means 'All')
+    final selected = context.watch<HomeController>().selectedCategory;
 
-    Widget chip(String label, bool filled, VoidCallback onTap) {
+    Widget chip(String label, String? categoryValue, VoidCallback onTap) {
+      // Check if this chip is selected
+      final isSelected = selected == categoryValue;
+
       return GestureDetector(
-        onTap: onTap, 
+        onTap: onTap,
         child: Container(
           height: 32 * s,
           padding: EdgeInsets.symmetric(horizontal: 16 * s, vertical: 12 * s),
           decoration: BoxDecoration(
-            color: filled ? const Color(0xFF222222) : const Color(0xFFFAFAFA),
+            color: isSelected
+                ? const Color(0xFF222222)
+                : const Color(0xFFFAFAFA),
             borderRadius: BorderRadius.circular(9999),
-            border: filled
+            border: isSelected
                 ? null
                 : Border.all(width: 1, color: const Color(0xFFF1EEEF)),
           ),
@@ -33,7 +39,7 @@ class CategoryChips extends StatelessWidget {
                 context,
                 12,
                 w: FontWeight.w500,
-                color: filled ? Colors.white : const Color(0xFF222222),
+                color: isSelected ? Colors.white : const Color(0xFF222222),
               ),
             ),
           ),
@@ -45,28 +51,38 @@ class CategoryChips extends StatelessWidget {
       height: dp(context, 52),
       child: ScrollConfiguration(
         behavior: ScrollConfiguration.of(context).copyWith(
-          dragDevices: {
-            PointerDeviceKind.touch,
-            PointerDeviceKind.mouse, // allow mouse drag on web
-          },
+          dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
         ),
         child: ListView(
           scrollDirection: Axis.horizontal,
-          physics: const BouncingScrollPhysics(), // smooth bounce scroll
+          physics: const BouncingScrollPhysics(),
           padding: EdgeInsets.symmetric(horizontal: dp(context, 16)),
           children: [
             SizedBox(width: dp(context, 4)),
-            chip('All Categories', selected == Category.all,
-                () => context.read<HomeController>().setCategory(Category.all)),
+            // 'All' passes null
+            chip(
+              'All Categories',
+              null,
+              () => context.read<HomeController>().setCategory(null),
+            ),
             SizedBox(width: dp(context, 8)),
-            chip('Men’s T-Shirt', selected == Category.mensTShirt,
-                () => context.read<HomeController>().setCategory(Category.mensTShirt)),
+            chip(
+              'T-Shirt',
+              'T-Shirt',
+              () => context.read<HomeController>().setCategory('T-Shirt'),
+            ),
             SizedBox(width: dp(context, 8)),
-            chip('Men’s Shoes', selected == Category.mensShoes,
-                () => context.read<HomeController>().setCategory(Category.mensShoes)),
+            chip(
+              'Shoes',
+              'Shoes',
+              () => context.read<HomeController>().setCategory('Shoes'),
+            ),
             SizedBox(width: dp(context, 8)),
-            chip('Limited', selected == Category.limited,
-                () => context.read<HomeController>().setCategory(Category.limited)),
+            chip(
+              'Sandals',
+              'Sandals',
+              () => context.read<HomeController>().setCategory('Sandals'),
+            ),
             SizedBox(width: dp(context, 4)),
           ],
         ),

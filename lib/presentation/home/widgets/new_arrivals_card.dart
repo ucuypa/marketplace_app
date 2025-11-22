@@ -1,19 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // ⬅️ 1. Import Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
-import '../models/product.dart'; // ⬅️ 2. Import model Product Anda
+import '../models/product.dart';
 
 class NewArrivalsCard extends StatelessWidget {
   const NewArrivalsCard({super.key});
 
   @override
   Widget build(BuildContext context) {
-    // ⬅️ 3. Tentukan stream untuk item terbaru
     final Stream<QuerySnapshot> newArrivalStream = FirebaseFirestore.instance
         .collection('items')
-        .orderBy('createdAt', descending: true) // Urutkan: terbaru di atas
-        .limit(1) // Ambil hanya 1 dokumen
+        .orderBy('createdAt', descending: true)
+        .limit(1)
         .snapshots();
 
     return Column(
@@ -32,7 +31,6 @@ class NewArrivalsCard extends StatelessWidget {
                 ),
               ),
               const Spacer(),
-              Text('See all', style: inter(context, 13, color: kPrimary)),
             ],
           ),
         ),
@@ -40,9 +38,7 @@ class NewArrivalsCard extends StatelessWidget {
         StreamBuilder<QuerySnapshot>(
           stream: newArrivalStream,
           builder: (context, snapshot) {
-            // --- Handle Loading State ---
             if (snapshot.connectionState == ConnectionState.waiting) {
-              // Tampilkan placeholder dengan tinggi yang sama
               return Container(
                 height: dp(context, 136),
                 alignment: Alignment.center,
@@ -50,18 +46,12 @@ class NewArrivalsCard extends StatelessWidget {
               );
             }
 
-            // --- Handle Error State ---
             if (snapshot.hasError) {
               return Center(child: Text('Error: ${snapshot.error}'));
             }
-
-            // --- Handle Empty State ---
             if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
               return const Center(child: Text('No new arrivals found.'));
             }
-
-            // --- Handle Data State ---
-            // Ambil satu-satunya dokumen dan ubah menjadi objek Product
             final productDoc = snapshot.data!.docs.first;
             final product = Product.fromFirestore(productDoc);
 
@@ -92,7 +82,7 @@ class NewArrivalsCard extends StatelessWidget {
                           ),
                           SizedBox(height: dp(context, 2)),
                           Text(
-                            product.title, // ⬅️ Ganti
+                            product.title,
                             style: inter(
                               context,
                               20,
@@ -102,7 +92,7 @@ class NewArrivalsCard extends StatelessWidget {
                           ),
                           SizedBox(height: dp(context, 8)),
                           Text(
-                            product.priceText, // ⬅️ Ganti
+                            product.priceText,
                             style: inter(
                               context,
                               16,
@@ -128,9 +118,7 @@ class NewArrivalsCard extends StatelessWidget {
                                   size: dp(context, 48),
                                 )
                               : Image.network(
-                                  // ⬅️ INI PERBAIKANNYA
-                                  product
-                                      .imageAsset, // Gunakan URL dari objek product
+                                  product.imageAsset,
                                   width: dp(context, 170),
                                   fit: BoxFit.cover,
                                   loadingBuilder: (context, child, progress) {

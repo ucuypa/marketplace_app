@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-
 import '../../../presentation/shared/scale.dart';
 import '../../../presentation/shared/ui_constants.dart';
 import '../application/cart_controller.dart';
+import '../../checkout/checkout_page.dart';
 
 class CartSummary extends StatelessWidget {
   const CartSummary({super.key});
@@ -20,40 +20,62 @@ class CartSummary extends StatelessWidget {
         ),
         child: Column(
           children: [
-            _summaryLine(context, 'Subtotal', cart.subtotal),
-            _summaryLine(context, 'Shopping', cart.shipping),
-            Divider(height: dp(context, 20)),
             _summaryLine(context, 'Total Cost', cart.total, bold: true),
             SizedBox(height: dp(context, 12)),
-            _checkoutBtn(context),
+
+            _checkoutBtn(context, cart),
           ],
         ),
       ),
     );
   }
 
-  Widget _summaryLine(BuildContext ctx, String label, double value,
-      {bool bold = false}) {
+  Widget _summaryLine(
+    BuildContext ctx,
+    String label,
+    double value, {
+    bool bold = false,
+  }) {
     return Padding(
       padding: EdgeInsets.symmetric(vertical: dp(ctx, 6)),
       child: Row(
         children: [
           Text(label, style: inter(ctx, 14, color: kTextMuted)),
           const Spacer(),
-          Text('\$${value.toStringAsFixed(2)}',
-              style: inter(ctx, bold ? 16 : 14,
-                  w: bold ? FontWeight.w700 : FontWeight.w700,
-                  color: kTextPrimary)),
+          Text(
+            '\$${value.toStringAsFixed(2)}',
+            style: inter(
+              ctx,
+              bold ? 16 : 14,
+              w: bold ? FontWeight.w700 : FontWeight.w700,
+              color: kTextPrimary,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _checkoutBtn(BuildContext ctx) => Container(
+  Widget _checkoutBtn(BuildContext ctx, CartController cart) {
+    return GestureDetector(
+      onTap: () {
+        if (cart.items.isEmpty) {
+          ScaffoldMessenger.of(
+            ctx,
+          ).showSnackBar(const SnackBar(content: Text("Your cart is empty!")));
+          return;
+        }
+
+        Navigator.push(
+          ctx,
+          MaterialPageRoute(builder: (_) => const CheckoutPage()),
+        );
+      },
+      child: Container(
         height: dp(ctx, 52),
         width: double.infinity,
         decoration: BoxDecoration(
-          color: kPrimary,
+          color: cart.items.isEmpty ? Colors.grey : kPrimary,
           borderRadius: BorderRadius.circular(dp(ctx, 24)),
           boxShadow: [
             BoxShadow(
@@ -64,8 +86,12 @@ class CartSummary extends StatelessWidget {
           ],
         ),
         child: Center(
-          child: Text('Checkout',
-              style: inter(ctx, 15, w: FontWeight.w600, color: Colors.white)),
+          child: Text(
+            'Checkout',
+            style: inter(ctx, 15, w: FontWeight.w600, color: Colors.white),
+          ),
         ),
-      );
+      ),
+    );
+  }
 }

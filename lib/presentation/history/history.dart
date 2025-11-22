@@ -1,26 +1,24 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import '../history/history.dart';
 import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
 
-class historyPage extends StatelessWidget {
-  const historyPage({super.key});
+class HistoryPage extends StatelessWidget {
+  const HistoryPage({super.key});
 
   // Stream pesanan user yang sudah "completed"
   Stream<QuerySnapshot<Map<String, dynamic>>> _historyStream() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
       // kalau belum login, stream kosong
-      return const Stream<QuerySnapshot<Map<String, dynamic>>>.empty();
+      return const Stream.empty();
     }
 
     return FirebaseFirestore.instance
-        .collection('orders') // ganti sesuai nama koleksi kamu
-        .where('userId', isEqualTo: user.uid)
-        .where('status', isEqualTo: 'completed') // hanya pesanan selesai
-        .orderBy('completedAt', descending: true)
+        .collection('orders')
+        .where('buyerID', isEqualTo: user.uid)
+        .orderBy('orderDate', descending: true)
         .snapshots();
   }
 
@@ -44,7 +42,6 @@ class historyPage extends StatelessWidget {
                         vertical: dp(ctx, 12),
                       ),
                       child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           GestureDetector(
                             onTap: () => Navigator.pop(ctx),
@@ -62,22 +59,23 @@ class historyPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          Text(
-                            'History',
-                            style: inter(
-                              ctx,
-                              18,
-                              w: FontWeight.w600,
-                              color: kTextPrimary,
+                          Expanded(
+                            child: Center(
+                              child: Text(
+                                'History',
+                                style: inter(
+                                  ctx,
+                                  18,
+                                  w: FontWeight.w600,
+                                  color: kTextPrimary,
+                                ),
+                              ),
                             ),
                           ),
                           // dummy supaya title tetap center
                           Opacity(
                             opacity: 0,
-                            child: Icon(
-                              Icons.more_horiz,
-                              size: dp(ctx, 20),
-                            ),
+                            child: Icon(Icons.more_horiz, size: dp(ctx, 20)),
                           ),
                         ],
                       ),
@@ -85,22 +83,21 @@ class historyPage extends StatelessWidget {
 
                     // ===== LIST DARI FIRESTORE =====
                     Expanded(
-                      child: StreamBuilder<
-                          QuerySnapshot<Map<String, dynamic>>>(
+                      child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                         stream: _historyStream(),
                         builder: (context, snapshot) {
                           if (snapshot.connectionState ==
                               ConnectionState.waiting) {
                             return const Center(
-                                child: CircularProgressIndicator());
+                              child: CircularProgressIndicator(),
+                            );
                           }
 
                           if (snapshot.hasError) {
                             return Center(
                               child: Text(
-                                'Failed to load history',
-                                style:
-                                inter(ctx, 14, color: Colors.redAccent),
+                                'Failed to load history: ${snapshot.error}',
+                                style: inter(ctx, 14, color: Colors.redAccent),
                               ),
                             );
                           }
@@ -110,7 +107,7 @@ class historyPage extends StatelessWidget {
                           if (docs.isEmpty) {
                             return Center(
                               child: Text(
-                                'No completed orders yet',
+                                'No orders yet',
                                 style: inter(
                                   ctx,
                                   14,
@@ -127,21 +124,24 @@ class historyPage extends StatelessWidget {
                             ),
                             itemBuilder: (context, index) {
                               final data = docs[index].data();
+                              final id = docs[index].id;
 
                               final orderCode =
-                                  data['orderCode'] as String? ??
-                                      '#INV-UNKNOWN';
+                                  '#${id.substring(0, 6).toUpperCase()}';
+
+                              // Ambil data dari field "preview" yang kita simpan saat checkout
                               final productName =
-                                  data['productName'] as String? ??
-                                      'Unknown Product';
-                              final quantity =
-                              (data['quantity'] ?? 1) as int;
-                              final price =
-                              (data['price'] ?? 0).toDouble();
+                                  data['previewProductName'] as String? ??
+                                  'Unknown Product';
                               final imageUrl =
-                              data['imageUrl'] as String?;
+                                  data['previewProductImage'] as String?;
+
+                              // Ambil total, bukan harga satuan, karena ini ringkasan order
+                              final price = (data['totalAmountPaid'] ?? 0)
+                                  .toDouble();
+
                               final completedAt =
-                              data['completedAt'] as Timestamp?;
+                                  data['orderDate'] as Timestamp?;
                               final dateStr = completedAt != null
                                   ? _formatDateTime(completedAt.toDate())
                                   : '-';
@@ -152,7 +152,8 @@ class historyPage extends StatelessWidget {
                                 fallbackAsset: 'assets/image/shoes.png',
                                 orderId: orderCode,
                                 productName: productName,
-                                quantity: quantity,
+                                quantity:
+                                    1, // Ringkasan order selalu 1 entitas transaksi
                                 price: price,
                                 timeText: dateStr,
                               );
@@ -165,38 +166,8 @@ class historyPage extends StatelessWidget {
                       ),
                     ),
 
-                    // ===== BUTTON BACK =====
-                    Padding(
-                      padding: EdgeInsets.fromLTRB(
-                        dp(ctx, 24),
-                        0,
-                        dp(ctx, 24),
-                        dp(ctx, 24),
-                      ),
-                      child: SizedBox(
-                        height: dp(ctx, 56),
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          style: ElevatedButton.styleFrom(
-                            backgroundColor: kPrimary,
-                            shape: RoundedRectangleBorder(
-                              borderRadius:
-                              BorderRadius.circular(dp(ctx, 30)),
-                            ),
-                          ),
-                          onPressed: () => Navigator.pop(context),
-                          child: Text(
-                            'Back',
-                            style: inter(
-                              ctx,
-                              16,
-                              w: FontWeight.w600,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
+                    // ===== PADDING BAWAH =====
+                    SizedBox(height: dp(ctx, 24)),
                   ],
                 ),
               ),
@@ -258,36 +229,46 @@ class _HistoryCard extends StatelessWidget {
     return Builder(
       builder: (ctx) => Container(
         decoration: BoxDecoration(
-          color: const Color(0xFFD9D9D9),
-          borderRadius: BorderRadius.circular(dp(ctx, 30)),
+          color: const Color(0xFFF8F9FA), // Warna lebih terang agar bersih
+          borderRadius: BorderRadius.circular(dp(ctx, 16)),
         ),
-        padding: EdgeInsets.all(dp(ctx, 14)),
+        padding: EdgeInsets.all(dp(ctx, 12)),
         child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             // Thumbnail
             Container(
-              width: dp(ctx, 92),
-              height: dp(ctx, 92),
+              width: dp(ctx, 80),
+              height: dp(ctx, 80),
               decoration: BoxDecoration(
                 color: Colors.white,
-                borderRadius: BorderRadius.circular(dp(ctx, 24)),
+                borderRadius: BorderRadius.circular(dp(ctx, 12)),
               ),
               child: ClipRRect(
-                borderRadius: BorderRadius.circular(dp(ctx, 24)),
-                child: imageUrl != null && imageUrl!.isNotEmpty
+                borderRadius: BorderRadius.circular(dp(ctx, 12)),
+                child: (imageUrl != null && imageUrl!.isNotEmpty)
                     ? Image.network(
-                  imageUrl!,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => _fallbackIcon(ctx),
-                )
+                        imageUrl!,
+                        fit: BoxFit.contain,
+                        loadingBuilder: (context, child, progress) {
+                          return progress == null
+                              ? child
+                              : const Center(
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                );
+                        },
+                        errorBuilder: (_, __, ___) => _fallbackIcon(ctx),
+                      )
                     : Image.asset(
-                  fallbackAsset,
-                  fit: BoxFit.contain,
-                  errorBuilder: (_, __, ___) => _fallbackIcon(ctx),
-                ),
+                        fallbackAsset,
+                        fit: BoxFit.contain,
+                        errorBuilder: (_, __, ___) => _fallbackIcon(ctx),
+                      ),
               ),
             ),
-            SizedBox(width: dp(ctx, 14)),
+            SizedBox(width: dp(ctx, 12)),
 
             // Info
             Expanded(
@@ -295,49 +276,45 @@ class _HistoryCard extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Expanded(
                         child: Text(
-                          'Order : $orderId',
-                          style: inter(ctx, 12, color: kTextPrimary),
+                          orderId,
+                          style: inter(ctx, 12, color: kTextMuted),
                           overflow: TextOverflow.ellipsis,
                         ),
                       ),
-                      SizedBox(width: dp(ctx, 8)),
                       Text(
                         '\$${price.toStringAsFixed(2)}',
                         style: inter(
                           ctx,
                           14,
                           w: FontWeight.w600,
-                          color: kTextPrimary,
+                          color: kPrimary, // Warna harga menonjol
                         ),
                       ),
                     ],
                   ),
-                  SizedBox(height: dp(ctx, 6)),
+                  SizedBox(height: dp(ctx, 4)),
+
+                  // Nama Produk
                   Text(
                     productName,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                     style: inter(
                       ctx,
-                      16,
-                      w: FontWeight.w700,
+                      15,
+                      w: FontWeight.w600,
                       color: kTextPrimary,
                     ),
                   ),
-                  SizedBox(height: dp(ctx, 2)),
-                  Text(
-                    '(${quantity}x)',
-                    style: inter(ctx, 14, color: kTextPrimary),
-                  ),
-                  SizedBox(height: dp(ctx, 10)),
-                  Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      timeText,
-                      style: inter(ctx, 14, color: kTextPrimary),
-                    ),
-                  ),
+
+                  SizedBox(height: dp(ctx, 12)),
+
+                  // Baris Bawah: Waktu
+                  Text(timeText, style: inter(ctx, 11, color: kTextMuted)),
                 ],
               ),
             ),
@@ -347,8 +324,6 @@ class _HistoryCard extends StatelessWidget {
     );
   }
 
-  Widget _fallbackIcon(BuildContext ctx) => Icon(
-    Icons.image_not_supported,
-    size: dp(ctx, 32),
-  );
+  Widget _fallbackIcon(BuildContext ctx) =>
+      Icon(Icons.image_not_supported, size: dp(ctx, 24), color: Colors.grey);
 }

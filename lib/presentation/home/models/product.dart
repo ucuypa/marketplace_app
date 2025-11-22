@@ -1,22 +1,23 @@
 import 'package:flutter/foundation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart'; // ⬅️ 1. Tambahkan import ini
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-/// Closed set of categories → type-safe & compiler-checked (no mistyped strings).
-enum Category { all, mensTShirt, mensShoes, limited }
-
-/// Mark the class as immutable:
-/// - Communicates intent: instances should not change after creation
-/// - Works nicely with Provider/Riverpod because immutable data makes rebuilds predictable
 @immutable
 class Product {
   final String id;
   final String title;
   final double price;
-  final String imageAsset;
+  final String imageAsset; // URL
   final String badge;
   final bool isPopular;
-  final List<Category> categories;
   final String description;
+
+  // Fields from database
+  final String category;
+  final List<String> sizes;
+  final int stock; // Total stock
+
+  // ⭐️ NEW: Inventory Map (Size -> Quantity)
+  final Map<String, dynamic> inventory;
 
   const Product({
     required this.id,
@@ -25,41 +26,45 @@ class Product {
     required this.imageAsset,
     this.badge = '',
     this.isPopular = false,
-    this.categories = const [Category.mensTShirt],
     this.description = '',
+    this.category = 'Product',
+    this.sizes = const [],
+    this.stock = 0,
+    this.inventory = const {}, // Default empty map
   });
 
   String get priceText => '\$${price.toStringAsFixed(2)}';
 
-  /// Factory constructor untuk membuat Product dari dokumen Firestore
+  // Factory to map from Firestore
   factory Product.fromFirestore(DocumentSnapshot doc) {
     Map data = doc.data() as Map<String, dynamic>;
 
-    // --- Logika untuk mem-parsing 'tags' dari database ---
+    // Parse tags/badge
     List<String> tags = List<String>.from(data['tags'] ?? []);
     bool isPopular = tags.contains('popular');
-    String badge;
+    String badge = '';
     try {
-      // Coba temukan tag pertama yang BUKAN 'popular' sebagai badge
       badge = tags.firstWhere((tag) => tag != 'popular');
     } catch (e) {
-      badge = ''; // Tidak ada badge
+      badge = '';
     }
 
-    // --- Kembalikan objek Product ---
     return Product(
       id: doc.id,
-      title: data['name'] ?? 'Untitled', // Map 'name' -> 'title'
+      title: data['name'] ?? 'Untitled',
       price: (data['price'] ?? 0.0).toDouble(),
-      imageAsset:
-          data['previewImageUrl'] ??
-          '', // Map 'previewImageUrl' -> 'imageAsset'
+      imageAsset: data['previewImageUrl'] ?? '',
       description: data['description'] ?? '',
+
+      category: data['category'] ?? 'General',
+      sizes: List<String>.from(data['sizes'] ?? []),
+      stock: data['stock'] ?? 0,
+
+      // ⭐️ Map the inventory field
+      inventory: data['inventory'] ?? {},
+
       badge: badge,
       isPopular: isPopular,
-
-      // Biarkan kosong untuk daftar, halaman detail harus mengambil kategorinya sendiri
-      categories: [],
     );
   }
 }

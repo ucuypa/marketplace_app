@@ -21,8 +21,9 @@ class DetailAppBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final fav = context.watch<FavoritesController>();
-    // Sesuaikan dengan signature controllermu:
-    final isFav = fav.isFavorite(product); // atau fav.isFavorite(product);
+
+    // ⭐️ PERBAIKAN DI SINI: Gunakan 'product.id'
+    final isFav = fav.isFavorite(product.id);
 
     return Padding(
       padding: EdgeInsets.symmetric(
@@ -31,23 +32,33 @@ class DetailAppBar extends StatelessWidget {
       ),
       child: Row(
         children: [
-          _iconBtn(context, icon: Icons.arrow_back_ios_new_rounded, onTap: onBack),
+          _iconBtn(
+            context,
+            icon: Icons.arrow_back_ios_new_rounded,
+            onTap: onBack,
+          ),
 
           Expanded(
             child: Center(
               child: Text(
                 title,
-                style: inter(context, 14, w: FontWeight.w600, color: kTextPrimary),
+                style: inter(
+                  context,
+                  14,
+                  w: FontWeight.w600,
+                  color: kTextPrimary,
+                ),
               ),
             ),
           ),
 
-          // HEART: toggle favorite TANPA navigasi
+          // HEART: toggle favorite
           GestureDetector(
             onTap: () {
-              context.read<FavoritesController>().toggle(product);
+              context.read<FavoritesController>().toggleFavorite(
+                product,
+              ); // Pastikan nama fungsinya benar (toggleFavorite atau toggle)
 
-              // (Opsional) Feedback kecil
               ScaffoldMessenger.of(context).hideCurrentSnackBar();
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(
@@ -78,8 +89,11 @@ class DetailAppBar extends StatelessWidget {
                         'assets/icon/HeartFill.png',
                         width: dp(context, 18),
                         height: dp(context, 18),
-                        errorBuilder: (_, __, ___) =>
-                            Icon(Icons.favorite, color: Colors.red, size: dp(context, 18)),
+                        errorBuilder: (_, __, ___) => Icon(
+                          Icons.favorite,
+                          color: Colors.red,
+                          size: dp(context, 18),
+                        ),
                       )
                     : Image.asset(
                         'assets/icon/Heart.png',
@@ -99,7 +113,11 @@ class DetailAppBar extends StatelessWidget {
     );
   }
 
-  Widget _iconBtn(BuildContext ctx, {required IconData icon, VoidCallback? onTap}) {
+  Widget _iconBtn(
+    BuildContext ctx, {
+    required IconData icon,
+    VoidCallback? onTap,
+  }) {
     return GestureDetector(
       onTap: onTap,
       child: Container(

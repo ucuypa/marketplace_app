@@ -10,23 +10,29 @@ class HomeController with ChangeNotifier {
   // Constructor
   HomeController({ProductRepository? repo})
     : _repo = repo ?? const ProductRepository() {
-    _init(); // Panggil _init untuk mengambil data
+    _init(); // Call _init to fetch data
   }
 
   // === STATE ===
   List<Product> _all = [];
   bool _isLoading = true;
-  Category _selected = Category.all;
+
+  // ⭐️ Changed from Enum to String? (null means 'All Categories')
+  String? _selectedCategory;
+
   String _query = '';
 
-  // ⬇️ State baru untuk data pengguna
+  // User Data State
   String? _userRole;
   String? _userName;
 
   // === GETTERS ===
   bool get isLoading => _isLoading;
   String get searchQuery => _query;
-  Category get selectedCategory => _selected;
+
+  // ⭐️ Return String?
+  String? get selectedCategory => _selectedCategory;
+
   String? get userRole => _userRole;
   String? get userName => _userName;
 
@@ -35,10 +41,15 @@ class HomeController with ChangeNotifier {
   List<Product> get filtered {
     final q = _query.trim().toLowerCase();
     return _all.where((p) {
-      final matchCat = _selected == Category.all
+      // ⭐️ Updated Category Logic
+      // If _selectedCategory is null, show everything.
+      // Otherwise, match the product's category String.
+      final matchCat = (_selectedCategory == null)
           ? true
-          : p.categories.contains(_selected);
+          : p.category == _selectedCategory;
+
       final matchQ = q.isEmpty ? true : p.title.toLowerCase().contains(q);
+
       return matchCat && matchQ;
     }).toList();
   }
@@ -46,12 +57,16 @@ class HomeController with ChangeNotifier {
   List<Product> get filteredPopular =>
       filtered.where((p) => p.isPopular).toList();
 
+  // === METHODS ===
+
   Future<void> _init() async {
     _isLoading = true;
     notifyListeners();
 
+    // 1. Fetch Products
     _all = await _repo.fetchAll();
 
+    // 2. Fetch User Role
     try {
       final user = auth.FirebaseAuth.instance.currentUser;
       if (user != null) {
@@ -69,7 +84,7 @@ class HomeController with ChangeNotifier {
     }
 
     _isLoading = false;
-    notifyListeners(); // Beri tahu UI untuk menampilkan data
+    notifyListeners();
   }
 
   Future<void> becomeSeller(BuildContext context) async {
@@ -77,20 +92,20 @@ class HomeController with ChangeNotifier {
       final user = auth.FirebaseAuth.instance.currentUser;
       if (user == null) throw Exception("Not logged in");
 
-      // Update data di Firestore
+      // Update data in Firestore
       await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
         {'role': 'seller'},
       );
 
-      // Perbarui state lokal
+      // Update local state
       _userRole = 'seller';
       notifyListeners();
 
-      // Tampilkan notifikasi
+      // Show notification
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Selamat! Anda sekarang adalah Seller.'),
+            content: Text('Congratulations! You are now a Seller.'),
             backgroundColor: Colors.green,
           ),
         );
@@ -100,7 +115,7 @@ class HomeController with ChangeNotifier {
       if (context.mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Gagal memperbarui role: ${e.toString()}'),
+            content: Text('Failed to update role: ${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -108,12 +123,15 @@ class HomeController with ChangeNotifier {
     }
   }
 
-  void setCategory(Category category) {
-    _selected = category;
+  // ⭐️ Updated to accept String? (or null for 'All')
+  void setCategory(String? category) {
+    if (_selectedCategory == category) return;
+    _selectedCategory = category;
     notifyListeners();
   }
 
   void setSearchQuery(String query) {
+    if (_query == query) return;
     _query = query;
     notifyListeners();
   }

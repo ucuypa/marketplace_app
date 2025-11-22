@@ -3,6 +3,7 @@ import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 import '../../favorites/favorites_page.dart';
 import '../../cart/cart_page.dart';
+import '../../history/history.dart';
 
 class BottomNav extends StatelessWidget {
   final VoidCallback? onProfileTap;
@@ -11,7 +12,6 @@ class BottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ⬅️ 1. Dapatkan padding bawah sistem
     final double bottomPadding = MediaQuery.of(context).viewPadding.bottom;
 
     return Positioned(
@@ -19,17 +19,14 @@ class BottomNav extends StatelessWidget {
       right: 0,
       bottom: 0,
       child: SizedBox(
-        height:
-            dp(context, 120) +
-            bottomPadding, // ⬅️ 2. Buat SizedBox lebih tinggi
+        height: dp(context, 120) + bottomPadding,
         child: Stack(
           alignment: Alignment.bottomCenter,
           children: [
             Positioned.fill(
               top: dp(context, 36),
-              bottom: 0, // ⬅️ Biarkan ini 0 agar menyentuh tepi
+              bottom: 0,
               child: Container(
-                // ⬅️ 3. Tambahkan padding internal ke container putih
                 padding: EdgeInsets.only(bottom: bottomPadding),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -41,7 +38,6 @@ class BottomNav extends StatelessWidget {
               ),
             ),
             Positioned(
-              // ⬅️ 4. Tambahkan padding ke baris ikon
               bottom: dp(context, 18) + bottomPadding,
               left: dp(context, 30),
               right: dp(context, 30),
@@ -49,6 +45,8 @@ class BottomNav extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   _icon('assets/icon/Home.png', Icons.home_outlined, context),
+
+                  // Favorites Button
                   GestureDetector(
                     onTap: () {
                       Navigator.of(context).push(
@@ -63,12 +61,26 @@ class BottomNav extends StatelessWidget {
                       context,
                     ),
                   ),
+
                   SizedBox(width: dp(context, 56)),
-                  _icon(
-                    'assets/icon/Notification.png',
-                    Icons.notifications_none,
-                    context,
+
+                  GestureDetector(
+                    onTap: () {
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          // Make sure 'historyPage' is the correct class name (it should be PascalCase 'HistoryPage')
+                          builder: (_) => const HistoryPage(),
+                        ),
+                      );
+                    },
+                    child: _icon(
+                      'assets/icon/History.png', // Or use your notification icon if you prefer
+                      Icons.history_rounded, // ⬅️ Changed Icon
+                      context,
+                    ),
                   ),
+
+                  // Profile Button
                   GestureDetector(
                     onTap: onProfileTap,
                     child: _icon(
@@ -81,8 +93,8 @@ class BottomNav extends StatelessWidget {
               ),
             ),
 
+            // FAB (Cart)
             Positioned(
-              // ⬅️ 5. Tambahkan padding ke Tombol FAB
               bottom: dp(context, 52) + bottomPadding,
               child: GestureDetector(
                 onTap: () {
