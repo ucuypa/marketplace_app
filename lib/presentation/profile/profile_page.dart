@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:flutter/foundation.dart' show kIsWeb, Uint8List;
 import '../manageproduct/ManageProductsPage.dart';
 import '../address_user/address_page.dart';
+import '../seller/seller_dashboard_page.dart'; // SESUAIKAN PATH
+
+// widgets
+import 'widgets/profile_header_section.dart';
+import 'widgets/profile_editable_field.dart';
+import 'widgets/profile_menu_item.dart';
+import 'widgets/profile_seller_section.dart';  // <-- NEW
+
+// controller
+import 'controller/profile_controller.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -20,6 +25,9 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController storeNameController = TextEditingController(); // <-- NEW
+
+  late final ProfileController _controller;
 
   bool _isLoading = true;
   bool _isEditing = false;
@@ -29,6 +37,7 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   void initState() {
     super.initState();
+    _controller = ProfileController();
     _fetchUserData();
   }
 
@@ -36,38 +45,28 @@ class _ProfilePageState extends State<ProfilePage> {
   void dispose() {
     nameController.dispose();
     passwordController.dispose();
+    storeNameController.dispose(); // <-- NEW
     super.dispose();
   }
 
   Future<void> _fetchUserData() async {
     setState(() => _isLoading = true);
     try {
-      final auth.User? user = auth.FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception("No user logged in");
+      final data = await _controller.fetchUserData();
 
-      final DocumentSnapshot userDoc = await FirebaseFirestore.instance
-          .collection('users')
-          .doc(user.uid)
-          .get();
+      nameController.text = data.name;
+      passwordController.text = '********';
+      storeNameController.text = data.storeName ?? ''; // <-- NEW
 
-      if (userDoc.exists) {
-        final data = userDoc.data() as Map<String, dynamic>;
-        nameController.text = data['name'] ?? '';
-        passwordController.text = '********';
-        _profilePicUrl = data['profilePicUrl'];
-        _userRole = data['role'];
-      }
+      setState(() {
+        _profilePicUrl = data.profilePicUrl;
+        _userRole = data.role;
+      });
     } catch (e) {
       _showErrorSnackbar('Failed to load profile: ${e.toString()}');
     }
-    setState(() => _isLoading = false);
-  }
-
-  void _showErrorSnackbar(String message) {
     if (mounted) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(message), backgroundColor: Colors.red),
-      );
+      setState(() => _isLoading = false);
     }
   }
 
@@ -76,25 +75,22 @@ class _ProfilePageState extends State<ProfilePage> {
     FocusManager.instance.primaryFocus?.unfocus();
 
     try {
-      final auth.User? user = auth.FirebaseAuth.instance.currentUser;
-      if (user == null) throw Exception("No user");
-
-      final newName = nameController.text;
-      final newPassword = passwordController.text;
-
-      await FirebaseFirestore.instance.collection('users').doc(user.uid).update(
-        {'name': newName},
+      await _controller.saveProfile(
+        name: nameController.text,
+        password: passwordController.text,
+        storeName: storeNameController.text, // <-- NEW
       );
-
-      if (newPassword.isNotEmpty && newPassword != '********') {
-        await user.updatePassword(newPassword);
-      }
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Profile updated successfully!')),
         );
       }
+
+      setState(() {
+        _isEditing = false;
+      });
+      passwordController.text = '********';
     } on auth.FirebaseAuthException catch (e) {
       if (e.code == 'requires-recent-login') {
         _showErrorSnackbar(
@@ -107,59 +103,44 @@ class _ProfilePageState extends State<ProfilePage> {
       _showErrorSnackbar('Failed to save profile: ${e.toString()}');
     }
 
-    setState(() {
-      _isLoading = false;
-      _isEditing = false;
-      passwordController.text = '********';
-    });
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _uploadProfilePicture() async {
-    final ImagePicker picker = ImagePicker();
-    final XFile? image = await picker.pickImage(source: ImageSource.gallery);
-    if (image == null) return;
-
     setState(() => _isLoading = true);
-    final String uid = auth.FirebaseAuth.instance.currentUser!.uid;
-
     try {
-      final Reference storageRef = FirebaseStorage.instance
-          .ref()
-          .child('profile_pictures')
-          .child('$uid.jpg');
-
-      final metadata = SettableMetadata(contentType: 'image/jpeg');
-
-      if (kIsWeb) {
-        final Uint8List imageBytes = await image.readAsBytes();
-        await storageRef.putData(imageBytes, metadata);
-      } else {
-        final File imageFile = File(image.path);
-        await storageRef.putFile(imageFile, metadata);
+      final String? url = await _controller.uploadProfilePicture();
+      if (url != null) {
+        setState(() {
+          _profilePicUrl = url;
+        });
       }
-
-      final String downloadURL = await storageRef.getDownloadURL();
-      await FirebaseFirestore.instance.collection('users').doc(uid).update({
-        'profilePicUrl': downloadURL,
-      });
-
-      setState(() {
-        _profilePicUrl = downloadURL;
-      });
     } catch (e) {
       _showErrorSnackbar('Failed to upload image: ${e.toString()}');
     }
-    setState(() => _isLoading = false);
+    if (mounted) {
+      setState(() => _isLoading = false);
+    }
   }
 
   Future<void> _signOut() async {
     try {
-      await auth.FirebaseAuth.instance.signOut();
+      await _controller.signOut();
       if (mounted) {
         Navigator.of(context).popUntil((route) => route.isFirst);
       }
     } catch (e) {
       _showErrorSnackbar('Failed to sign out: ${e.toString()}');
+    }
+  }
+
+  void _showErrorSnackbar(String message) {
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(message), backgroundColor: Colors.red),
+      );
     }
   }
 
@@ -195,7 +176,7 @@ class _ProfilePageState extends State<ProfilePage> {
                   icon: const Icon(
                     Icons.edit_outlined,
                     color: Colors.blueAccent,
-                  ), // Pencil icon
+                  ),
                   onPressed: () {
                     setState(() {
                       _isEditing = true;
@@ -217,87 +198,27 @@ class _ProfilePageState extends State<ProfilePage> {
                       builder: (ctx) => ListView(
                         padding: EdgeInsets.all(dp(ctx, 24)),
                         children: [
-                          // ===== 1. PROFILE PICTURE =====
-                          Center(
-                            child: Stack(
-                              alignment: Alignment.bottomRight,
-                              children: [
-                                CircleAvatar(
-                                  radius: dp(ctx, 50),
-                                  backgroundColor: Colors.white,
-                                  child: _profilePicUrl == null
-                                      ? Icon(
-                                          Icons.person,
-                                          size: dp(ctx, 48),
-                                          color: Colors.grey,
-                                        )
-                                      : ClipOval(
-                                          child: Image.network(
-                                            _profilePicUrl!,
-                                            width: dp(ctx, 100),
-                                            height: dp(ctx, 100),
-                                            fit: BoxFit.cover,
-                                            loadingBuilder:
-                                                (
-                                                  context,
-                                                  child,
-                                                  progress,
-                                                ) => progress == null
-                                                ? child
-                                                : const Center(
-                                                    child:
-                                                        CircularProgressIndicator(),
-                                                  ),
-                                            errorBuilder: (_, __, ___) => Icon(
-                                              Icons.person,
-                                              size: dp(ctx, 48),
-                                            ),
-                                          ),
-                                        ),
-                                ),
-                                Visibility(
-                                  visible: _isEditing,
-                                  child: GestureDetector(
-                                    onTap: _uploadProfilePicture,
-                                    child: Container(
-                                      width: dp(ctx, 32),
-                                      height: dp(ctx, 32),
-                                      decoration: const BoxDecoration(
-                                        color: Colors.blueAccent,
-                                        shape: BoxShape.circle,
-                                      ),
-                                      child: const Icon(
-                                        Icons.camera_alt,
-                                        color: Colors.white,
-                                        size: 18,
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-
-                          SizedBox(height: dp(ctx, 12)),
-                          Center(
-                            child: Text(
-                              nameController.text,
-                              style: const TextStyle(
-                                fontWeight: FontWeight.bold,
-                                fontSize: 20,
-                                color: Colors.black,
-                              ),
-                            ),
+                          // 1. HEADER
+                          ProfileHeaderSection(
+                            profilePicUrl: _profilePicUrl,
+                            displayName: nameController.text,
+                            isEditing: _isEditing,
+                            onChangePhoto: _uploadProfilePicture,
                           ),
 
                           SizedBox(height: dp(ctx, 32)),
 
-                          _editableField('Full Name', nameController, ctx),
+                          // 2. FIELDS
+                          ProfileEditableField(
+                            label: 'Full Name',
+                            controller: nameController,
+                            isEditing: _isEditing,
+                          ),
                           SizedBox(height: dp(ctx, 20)),
-                          _editableField(
-                            'Password',
-                            passwordController,
-                            ctx,
+                          ProfileEditableField(
+                            label: 'Password',
+                            controller: passwordController,
+                            isEditing: _isEditing,
                             obscure: true,
                             hint: 'Enter new password (optional)',
                           ),
@@ -305,8 +226,32 @@ class _ProfilePageState extends State<ProfilePage> {
                           SizedBox(height: dp(ctx, 24)),
                           const Divider(thickness: 1, color: Color(0xFFEAEAEA)),
                           SizedBox(height: dp(ctx, 16)),
-                          _menuItem(
-                            ctx,
+
+                          // 3. SELLER SECTION (only for seller)
+                          if (_userRole == 'seller') ...[
+                            ProfileSellerSection(
+                              storeNameController: storeNameController,
+                              isEditing: _isEditing,
+                              onGoToDashboard: () {
+                                // sementara pakai ManageProductPage sebagai dashboard
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (_) => const SellerDashboardPage(),
+                                  ),
+                                );
+                              },
+                            ),
+                            SizedBox(height: dp(ctx, 24)),
+                            const Divider(
+                              thickness: 1,
+                              color: Color(0xFFEAEAEA),
+                            ),
+                            SizedBox(height: dp(ctx, 16)),
+                          ],
+
+                          // 4. MENU ITEMS
+                          ProfileMenuItem(
                             title: 'Manage Address',
                             onTap: () {
                               Navigator.push(
@@ -321,8 +266,7 @@ class _ProfilePageState extends State<ProfilePage> {
                           if (_userRole == 'seller')
                             Padding(
                               padding: EdgeInsets.only(top: dp(ctx, 16)),
-                              child: _menuItem(
-                                ctx,
+                              child: ProfileMenuItem(
                                 title: 'Manage Product',
                                 onTap: () {
                                   Navigator.push(
@@ -357,84 +301,6 @@ class _ProfilePageState extends State<ProfilePage> {
                 },
               ),
             ),
-    );
-  }
-
-  Widget _editableField(
-    String label,
-    TextEditingController controller,
-    BuildContext ctx, {
-    bool obscure = false,
-    String? hint,
-  }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: const TextStyle(
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
-            color: Colors.black54,
-          ),
-        ),
-        SizedBox(height: dp(ctx, 8)),
-        TextField(
-          controller: controller,
-          obscureText: obscure,
-          enabled: _isEditing,
-          readOnly: !_isEditing,
-          decoration: InputDecoration(
-            hintText: _isEditing ? hint : null,
-            filled: true,
-            fillColor: Colors.white,
-            contentPadding: EdgeInsets.symmetric(
-              vertical: dp(ctx, 16),
-              horizontal: dp(ctx, 16),
-            ),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-            disabledBorder: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(12),
-              borderSide: BorderSide.none,
-            ),
-          ),
-        ),
-      ],
-    );
-  }
-
-  Widget _menuItem(
-    BuildContext ctx, {
-    required String title,
-    required VoidCallback onTap,
-  }) {
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Container(
-        padding: EdgeInsets.symmetric(vertical: dp(ctx, 12)),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: [
-            Text(
-              title,
-              style: const TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-                color: Colors.black87,
-              ),
-            ),
-            const Icon(
-              Icons.arrow_forward_ios_rounded,
-              size: 16,
-              color: Colors.black54,
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
