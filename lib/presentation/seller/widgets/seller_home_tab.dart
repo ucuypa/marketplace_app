@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../shared/scale.dart';
-import '../seller_dashboard_model.dart';
+import '../models/seller_dashboard_model.dart';
 import 'seller_product_item_card.dart';
 
 class SellerHomeTab extends StatelessWidget {
@@ -15,7 +15,7 @@ class SellerHomeTab extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const Text(
-          'Home',
+          'New Products',
           style: TextStyle(
             fontSize: 18,
             fontWeight: FontWeight.w700,
@@ -30,13 +30,6 @@ class SellerHomeTab extends StatelessWidget {
         else
           SellerProductItemCard(product: data.products.first),
         const SizedBox(height: 24),
-        const Text(
-          'Products',
-          style: TextStyle(
-            fontSize: 18,
-            fontWeight: FontWeight.w700,
-          ),
-        ),
       ],
     );
   }
