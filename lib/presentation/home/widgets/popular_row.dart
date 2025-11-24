@@ -102,7 +102,14 @@ class PopularRow extends StatelessWidget {
                     title: p.title,
                     price: "\$${p.price.toStringAsFixed(2)}",
                     image: p.imageAsset,
-                    onAdd: () {},
+                    onAdd: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => ProductDetailPage(product: p),
+                        ),
+                      );
+                    },
                     imageHeight: 130 * s,
                   ),
                 );
