@@ -77,7 +77,7 @@ class TopBar extends StatelessWidget {
               _circleBtn(
                 context,
                 child: Image.asset(
-                  'assets/icon/AddCartTopRight.png',
+                  'assets/icon/Notification.png',
                   width: dp(context, 24),
                   height: dp(context, 24),
                   errorBuilder: (_, __, ___) =>
