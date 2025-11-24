@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 
 import '../shared/scale.dart';
 import '../shared/ui_constants.dart';
-import 'seller_dashboard_controller.dart';
-import 'seller_dashboard_model.dart';
+import 'controller/seller_dashboard_controller.dart';
+import 'models/seller_dashboard_model.dart';
 
 // widgets
 import 'widgets/seller_header_card.dart';
@@ -101,17 +101,23 @@ class _SellerDashboardPageState extends State<SellerDashboardPage> {
               const SizedBox(height: 16),
               TextField(
                 controller: _editStoreNameController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Store Name',
-                  border: OutlineInputBorder(),
+                  hintText: _editStoreNameController.text.isEmpty
+                      ? 'Enter your store name'
+                      : null, // <-- hint kalau kosong
+                  border: const OutlineInputBorder(),
                 ),
               ),
               const SizedBox(height: 12),
               TextField(
                 controller: _editAddressController,
-                decoration: const InputDecoration(
+                decoration: InputDecoration(
                   labelText: 'Address',
-                  border: OutlineInputBorder(),
+                  hintText: _editAddressController.text.isEmpty
+                      ? 'Enter store address'
+                      : null, // <-- hint kalau kosong
+                  border: const OutlineInputBorder(),
                 ),
                 maxLines: 2,
               ),
