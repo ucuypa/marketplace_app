@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../shared/scale.dart';
-import '../seller_dashboard_model.dart';
+import '../models/seller_dashboard_model.dart';
 
 class SellerHeaderCard extends StatelessWidget {
   final SellerDashboardData data;
@@ -10,6 +10,11 @@ class SellerHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ✅ TAMBAHAN: logic hint kalau nama toko kosong
+    final bool isNameEmpty = data.storeName.isEmpty;
+    final String displayName =
+        isNameEmpty ? 'Set your store name' : data.storeName;
+
     return Container(
       padding: EdgeInsets.all(dp(context, 16)),
       decoration: BoxDecoration(
@@ -35,11 +40,13 @@ class SellerHeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ✅ UBAH bagian ini: pakai displayName + warna beda kalau kosong
                 Text(
-                  data.storeName,
-                  style: const TextStyle(
+                  displayName,
+                  style: TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.w700,
+                    color: isNameEmpty ? Colors.black45 : Colors.black,
                   ),
                 ),
                 const SizedBox(height: 6),
