@@ -2,7 +2,7 @@
 import 'package:flutter/material.dart';
 
 import '../../shared/scale.dart';
-import '../seller_dashboard_model.dart';
+import '../models/seller_dashboard_model.dart';
 
 class SellerProductItemCard extends StatelessWidget {
   final SellerProduct product;
