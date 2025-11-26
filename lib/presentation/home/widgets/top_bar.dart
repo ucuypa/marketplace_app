@@ -71,45 +71,19 @@ class TopBar extends StatelessWidget {
             ),
           ),
 
-          Stack(
-            clipBehavior: Clip.none,
-            children: [
-              _circleBtn(
-                context,
-                child: Image.asset(
-                  'assets/icon/Notification.png',
-                  width: dp(context, 24),
-                  height: dp(context, 24),
-                  errorBuilder: (_, __, ___) =>
-                      Icon(Icons.favorite_border, size: dp(context, 22)),
-                ),
-              ),
-              Positioned(
-                right: dp(context, 6),
-                top: dp(context, 6),
-                child: Container(
-                  width: dp(context, 8),
-                  height: dp(context, 8),
-                  decoration: const BoxDecoration(
-                    color: kDanger,
-                    shape: BoxShape.circle,
-                  ),
-                ),
-              ),
-            ],
-          ),
+          SizedBox(width: dp(context, 44)),
         ],
       ),
     );
   }
 
   Widget _circleBtn(BuildContext ctx, {required Widget child}) => Container(
-    width: dp(ctx, 44),
-    height: dp(ctx, 44),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(dp(ctx, 44)),
-    ),
-    child: Center(child: child),
-  );
+        width: dp(ctx, 44),
+        height: dp(ctx, 44),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(dp(ctx, 44)),
+        ),
+        child: Center(child: child),
+      );
 }
