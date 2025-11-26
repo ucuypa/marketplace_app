@@ -1,13 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:provider/provider.dart';                      // <-- ADD
+import 'package:provider/provider.dart';
 import '../../shared/scale.dart';
 import '../../shared/ui_constants.dart';
 import 'product_card.dart';
 import '../../detail/product_detail_page.dart';
 import '../models/product.dart';
-import '../controllers/home_controller.dart';                 // <-- ADD
+import '../controllers/home_controller.dart';
 
 class PopularRow extends StatelessWidget {
   const PopularRow({super.key});
@@ -46,19 +46,31 @@ class PopularRow extends StatelessWidget {
 
             final docs = snapshot.data!.docs;
 
-            // --------- LOGIC SEARCH BAR DI SINI ---------
+            // --------- LOGIC SEARCH + CATEGORY DI SINI ---------
             final home = context.watch<HomeController>();
             final q = home.searchQuery.trim().toLowerCase();
+            final selectedCat = home.selectedCategory; // <- dari controller
 
-            // filter dokumen berdasarkan nama/title
             final filteredDocs = docs.where((doc) {
               final data = doc.data() as Map<String, dynamic>;
+
               final title = (data['name'] ?? data['title'] ?? '')
                   .toString()
                   .toLowerCase();
-              if (q.isEmpty) return true;        // kalau search kosong → semua
-              return title.contains(q);          // cocok dengan query
+
+              final cat = (data['category'] ?? '').toString();
+
+              // match query
+              final matchQ = q.isEmpty ? true : title.contains(q);
+
+              // match kategori (null / '' = semua kategori)
+              final matchCat = (selectedCat == null || selectedCat.isEmpty)
+                  ? true
+                  : cat == selectedCat;
+
+              return matchQ && matchCat;
             }).toList();
+            // -------------------------------------------
 
             if (filteredDocs.isEmpty) {
               return const Padding(
@@ -71,13 +83,12 @@ class PopularRow extends StatelessWidget {
                 ),
               );
             }
-            // -------------------------------------------
 
             return GridView.builder(
               shrinkWrap: true,
               physics: const NeverScrollableScrollPhysics(),
               padding: EdgeInsets.symmetric(horizontal: dp(context, 20)),
-              itemCount: filteredDocs.length,              // <-- pakai filtered
+              itemCount: filteredDocs.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                 crossAxisCount: 2,
                 crossAxisSpacing: dp(context, 16),
@@ -85,7 +96,7 @@ class PopularRow extends StatelessWidget {
                 childAspectRatio: (160 / 210),
               ),
               itemBuilder: (context, index) {
-                final doc = filteredDocs[index];           // <-- pakai filtered
+                final doc = filteredDocs[index];
                 final p = Product.fromFirestore(doc);
 
                 return GestureDetector(
