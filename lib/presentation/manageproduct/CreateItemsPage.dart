@@ -9,7 +9,6 @@ import '../home/models/product.dart';
 
 class CreateItemPage extends StatefulWidget {
   final Product? productToEdit;
-  // We pass the raw map for editing because Product model might not have it yet
   final Map<String, dynamic>? currentInventory;
   final String? currentCategory;
 
@@ -30,12 +29,9 @@ class _CreateItemPageState extends State<CreateItemPage> {
   final _descriptionController = TextEditingController();
   final _priceController = TextEditingController();
 
-  // ⭐️ NEW: Map to store controllers for each size (e.g. "40" -> Controller(text: "5"))
   final Map<String, TextEditingController> _stockControllers = {};
 
   String? _selectedCategory;
-  // We don't need a separate _selectedSizes list anymore,
-  // we just check the keys of _stockControllers.
 
   final List<String> _categories = [
     'Shoes',
@@ -103,14 +99,11 @@ class _CreateItemPageState extends State<CreateItemPage> {
     }
   }
 
-  // ⭐️ Logic to toggle size selection
   void _toggleSize(String size) {
     setState(() {
       if (_stockControllers.containsKey(size)) {
-        // Deselect: Remove controller
         _stockControllers.remove(size);
       } else {
-        // Select: Add new controller with default '0' or empty
         _stockControllers[size] = TextEditingController(text: '');
       }
     });

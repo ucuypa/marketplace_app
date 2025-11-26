@@ -14,9 +14,8 @@ class Product {
   // Fields from database
   final String category;
   final List<String> sizes;
-  final int stock; // Total stock
+  final int stock;
 
-  // ⭐️ NEW: Inventory Map (Size -> Quantity)
   final Map<String, dynamic> inventory;
 
   const Product({
@@ -60,8 +59,7 @@ class Product {
       sizes: List<String>.from(data['sizes'] ?? []),
       stock: data['stock'] ?? 0,
 
-      // ⭐️ Map the inventory field
-      inventory: data['inventory'] ?? {},
+      inventory: Map<String, dynamic>.from(data['inventory'] ?? {}),
 
       badge: badge,
       isPopular: isPopular,

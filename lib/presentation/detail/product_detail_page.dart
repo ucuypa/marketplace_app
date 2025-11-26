@@ -5,11 +5,7 @@ import 'package:marketplace_app/presentation/shared/ui_constants.dart';
 import '../home/models/product.dart';
 import '../cart/application/cart_controller.dart';
 import '../cart/cart_page.dart';
-
-// controller
 import 'application/detail_controller.dart';
-
-// widgets
 import 'widgets/detail_app_bar.dart';
 import 'widgets/section_card.dart';
 import 'widgets/size_selector.dart';
@@ -139,7 +135,6 @@ class ProductDetailPage extends StatelessWidget {
                                 ),
                                 SizedBox(height: dp(ctx, 16)),
 
-                                // Size selector (Only if sizes exist)
                                 if (vm.sizes.isNotEmpty) ...[
                                   Row(
                                     mainAxisAlignment:
@@ -165,17 +160,15 @@ class ProductDetailPage extends StatelessWidget {
                                   SizedBox(height: dp(ctx, 8)),
                                   SizeSelector(
                                     sizes: vm.sizes,
-                                    selected: vm.selectedSize!,
+                                    selected: vm.selectedSize,
                                     onChanged: vm.setSize,
                                   ),
                                   SizedBox(height: dp(ctx, 16)),
                                 ],
 
-                                // Price + CTA
                                 PriceCtaBar(
                                   priceText: vm.product.priceText,
                                   onAddToCart: () {
-                                    // 1. Check if size is selected (if product has sizes)
                                     if (vm.sizes.isNotEmpty &&
                                         vm.selectedSize == null) {
                                       ScaffoldMessenger.of(ctx).showSnackBar(
@@ -185,10 +178,6 @@ class ProductDetailPage extends StatelessWidget {
                                       );
                                       return;
                                     }
-
-                                    // 2. Check Stock
-                                    // If sizes exist, check stock for selected size.
-                                    // If no sizes (digital), assume stock available or check 'product.stock'
                                     int availableStock = vm.sizes.isNotEmpty
                                         ? vm.stockForSelectedSize
                                         : vm.product.stock;
@@ -201,12 +190,8 @@ class ProductDetailPage extends StatelessWidget {
                                       );
                                       return;
                                     }
-
-                                    // 3. Add to Cart
                                     context.read<CartController>().add(
                                       vm.product,
-                                      // ⭐️ Use '!' because we already checked it's not null above
-                                      // Or use empty string for products without sizes
                                       size: vm.selectedSize ?? '',
                                     );
 

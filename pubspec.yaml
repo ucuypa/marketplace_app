@@ -15,7 +15,7 @@ dependencies:
   firebase_auth: ^6.1.1
   cloud_firestore: ^6.0.3
   flutter_riverpod: ^3.0.3
-  google_fonts: ^6.2.1   # Inter via Google Fonts
+  google_fonts: ^6.2.1
   provider: ^6.1.5+1
   image_picker: ^1.2.0
   firebase_storage: ^13.0.3
@@ -29,13 +29,9 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
-  # Include folders (semua file di dalamnya otomatis terdaftar)
   assets:
     - assets/icon/
     - assets/image/
-
-    # (Opsional) Daftar eksplisit file yang saat ini ada di proyekmu
-    # — aman dibiarkan; tidak masalah jika folder di atas sudah di-include.
     # ICONS
     - assets/icon/AddCartTopRight.png
     - assets/icon/AddProduct2.png

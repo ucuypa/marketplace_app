@@ -1,49 +1,55 @@
 import 'package:flutter/material.dart';
-import 'package:marketplace_app/presentation/shared/scale.dart';
-import 'package:marketplace_app/presentation/shared/ui_constants.dart';
+import '../../shared/scale.dart';
+import '../../shared/ui_constants.dart';
 
 class SizeSelector extends StatelessWidget {
   final List<String> sizes;
-  final String selected;
+  final String? selected;
   final ValueChanged<String> onChanged;
+
   const SizeSelector({
     super.key,
     required this.sizes,
-    required this.selected,
+    this.selected,
     required this.onChanged,
   });
 
   @override
-  Widget build(BuildContext context) => Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text('Size', style: inter(context, 15, w: FontWeight.w600, color: kTextPrimary)),
-          SizedBox(height: dp(context, 10)),
-          Wrap(
-            spacing: dp(context, 10),
-            runSpacing: dp(context, 10),
-            children: sizes.map((s) {
-              final isSel = s == selected;
-              return GestureDetector(
-                onTap: () => onChanged(s),
-                child: Container(
-                  width: dp(context, 44),
-                  height: dp(context, 44),
-                  decoration: BoxDecoration(
-                    color: isSel ? kPrimary : const Color(0xFFF2F4F6),
-                    borderRadius: BorderRadius.circular(999),
-                  ),
-                  child: Center(
-                    child: Text(
-                      s,
-                      style: inter(context, 14,
-                          w: FontWeight.w600, color: isSel ? Colors.white : kTextPrimary),
-                    ),
-                  ),
+  Widget build(BuildContext context) {
+    return Wrap(
+      spacing: dp(context, 12),
+      runSpacing: dp(context, 12),
+      children: sizes.map((size) {
+        final isSelected = size == selected;
+
+        return GestureDetector(
+          onTap: () => onChanged(size),
+          child: Container(
+            width: dp(context, 48),
+            height: dp(context, 48),
+            decoration: BoxDecoration(
+              color: isSelected ? kPrimary : Colors.white,
+              shape:
+                  BoxShape.circle, // Atau rounded rectangle sesuai desain Anda
+              border: Border.all(
+                color: isSelected ? kPrimary : const Color(0xFFEAEAEA),
+                width: 1.5,
+              ),
+            ),
+            child: Center(
+              child: Text(
+                size,
+                style: inter(
+                  context,
+                  14,
+                  w: FontWeight.w600,
+                  color: isSelected ? Colors.white : kTextPrimary,
                 ),
-              );
-            }).toList(),
+              ),
+            ),
           ),
-        ],
-      );
+        );
+      }).toList(),
+    );
+  }
 }
