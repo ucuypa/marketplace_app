@@ -31,6 +31,7 @@ class FavoritesController extends ChangeNotifier {
               price: (data['price'] as num).toDouble(),
               imageAsset: data['image'] ?? '',
               description: '',
+              sellerID: '',
               // Store the Firestore doc ID temporarily in 'badge' or handle separately if needed
               // For simple display, this is enough.
             );

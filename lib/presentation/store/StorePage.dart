@@ -20,6 +20,7 @@ class StorePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Query items belonging to this seller
     final Stream<QuerySnapshot> _storeStream = FirebaseFirestore.instance
         .collection('items')
         .where('sellerID', isEqualTo: sellerId)
@@ -37,7 +38,7 @@ class StorePage extends StatelessWidget {
               child: Builder(
                 builder: (ctx) => CustomScrollView(
                   slivers: [
-                    // --- Sliver App Bar (Header) ---
+                    // --- Header: Seller Info ---
                     SliverAppBar(
                       backgroundColor: Colors.white,
                       pinned: true,
@@ -49,18 +50,15 @@ class StorePage extends StatelessWidget {
                         ),
                         onPressed: () => Navigator.pop(context),
                       ),
-                      expandedHeight: dp(ctx, 140),
+                      expandedHeight: dp(ctx, 160),
                       flexibleSpace: FlexibleSpaceBar(
                         background: Container(
-                          color: Colors.white,
-                          padding: EdgeInsets.only(
-                            top: dp(ctx, 60),
-                            bottom: dp(ctx, 20),
-                          ),
+                          padding: EdgeInsets.only(top: dp(ctx, 50)),
+                          alignment: Alignment.center,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              // Seller Avatar
+                              // Avatar
                               Container(
                                 width: dp(ctx, 60),
                                 height: dp(ctx, 60),
@@ -77,7 +75,8 @@ class StorePage extends StatelessWidget {
                                       : null,
                                 ),
                                 child:
-                                    sellerImage == null || sellerImage!.isEmpty
+                                    (sellerImage == null ||
+                                        sellerImage!.isEmpty)
                                     ? Icon(
                                         Icons.storefront,
                                         size: dp(ctx, 30),
@@ -86,7 +85,7 @@ class StorePage extends StatelessWidget {
                                     : null,
                               ),
                               SizedBox(height: dp(ctx, 10)),
-                              // Seller Name
+                              // Name
                               Text(
                                 sellerName,
                                 style: TextStyle(
@@ -95,13 +94,21 @@ class StorePage extends StatelessWidget {
                                   color: Colors.black,
                                 ),
                               ),
+                              SizedBox(height: dp(ctx, 4)),
+                              Text(
+                                "Official Store",
+                                style: TextStyle(
+                                  fontSize: dp(ctx, 12),
+                                  color: Colors.grey,
+                                ),
+                              ),
                             ],
                           ),
                         ),
                       ),
                     ),
 
-                    // --- Product Grid ---
+                    // --- Grid: Products ---
                     StreamBuilder<QuerySnapshot>(
                       stream: _storeStream,
                       builder: (context, snapshot) {
@@ -116,7 +123,7 @@ class StorePage extends StatelessWidget {
                             child: Container(
                               height: 300,
                               alignment: Alignment.center,
-                              child: const Text("This store has no items."),
+                              child: const Text("This store has no items yet."),
                             ),
                           );
                         }
@@ -153,7 +160,8 @@ class StorePage extends StatelessWidget {
                                 child: ProductCard(
                                   product: p,
                                   imageHeight: 130 * s,
-                                  onAdd: () {},
+                                  onAdd:
+                                      () {}, // Handled inside ProductCard now
                                 ),
                               );
                             }, childCount: docs.length),
