@@ -43,6 +43,7 @@ class CartController extends ChangeNotifier {
               price: (data['price'] as num).toDouble(),
               imageAsset: data['image'] ?? '',
               description: '',
+              sellerID: '',
             );
 
             final cartItem = CartItem(

@@ -10,6 +10,8 @@ import 'widgets/detail_app_bar.dart';
 import 'widgets/section_card.dart';
 import 'widgets/size_selector.dart';
 import 'widgets/price_cta_bar.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import '../store/StorePage.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final Product product;
@@ -134,6 +136,65 @@ class ProductDetailPage extends StatelessWidget {
                                   ),
                                 ),
                                 SizedBox(height: dp(ctx, 16)),
+
+                                GestureDetector(
+                                  onTap: () async {
+                                    try {
+                                      // 1. Get Seller Data from Firestore using ID
+                                      final sellerDoc = await FirebaseFirestore
+                                          .instance
+                                          .collection('users')
+                                          .doc(
+                                            vm.product.sellerID,
+                                          ) // Ensure Product model has 'sellerID'
+                                          .get();
+
+                                      // 2. Get Name & Image
+                                      final sellerName =
+                                          sellerDoc.data()?['storeName'] ??
+                                          sellerDoc.data()?['name'] ??
+                                          'Store';
+                                      final sellerPic = sellerDoc
+                                          .data()?['profilePicUrl'];
+
+                                      // 3. Navigate
+                                      if (ctx.mounted) {
+                                        Navigator.push(
+                                          ctx,
+                                          MaterialPageRoute(
+                                            builder: (_) => StorePage(
+                                              sellerId: vm.product.sellerID,
+                                              sellerName: sellerName,
+                                              sellerImage: sellerPic,
+                                            ),
+                                          ),
+                                        );
+                                      }
+                                    } catch (e) {
+                                      // Handle error (e.g. invalid ID)
+                                      print("Error loading store: $e");
+                                    }
+                                  },
+                                  child: Row(
+                                    children: [
+                                      Icon(
+                                        Icons.storefront,
+                                        size: dp(ctx, 18),
+                                        color: Colors.blueAccent,
+                                      ),
+                                      SizedBox(width: dp(ctx, 6)),
+                                      Text(
+                                        "Visit Store",
+                                        style: TextStyle(
+                                          fontSize: 14,
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.blueAccent,
+                                          decoration: TextDecoration.underline,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
 
                                 if (vm.sizes.isNotEmpty) ...[
                                   Row(

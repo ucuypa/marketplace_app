@@ -10,7 +10,7 @@ import '../seller/seller_dashboard_page.dart'; // SESUAIKAN PATH
 import 'widgets/profile_header_section.dart';
 import 'widgets/profile_editable_field.dart';
 import 'widgets/profile_menu_item.dart';
-import 'widgets/profile_seller_section.dart';  // <-- NEW
+import 'widgets/profile_seller_section.dart'; // <-- NEW
 
 // controller
 import 'controller/profile_controller.dart';
@@ -25,7 +25,8 @@ class ProfilePage extends StatefulWidget {
 class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
-  final TextEditingController storeNameController = TextEditingController(); // <-- NEW
+  final TextEditingController storeNameController =
+      TextEditingController(); // <-- NEW
 
   late final ProfileController _controller;
 
@@ -233,7 +234,6 @@ class _ProfilePageState extends State<ProfilePage> {
                               storeNameController: storeNameController,
                               isEditing: _isEditing,
                               onGoToDashboard: () {
-                                // sementara pakai ManageProductPage sebagai dashboard
                                 Navigator.push(
                                   context,
                                   MaterialPageRoute(

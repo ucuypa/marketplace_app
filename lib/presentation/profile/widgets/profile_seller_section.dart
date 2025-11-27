@@ -28,9 +28,7 @@ class ProfileSellerSection extends StatelessWidget {
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(18),
               ),
-              padding: EdgeInsets.symmetric(
-                vertical: dp(context, 14),
-              ),
+              padding: EdgeInsets.symmetric(vertical: dp(context, 14)),
               elevation: 0,
             ),
             child: const Text(

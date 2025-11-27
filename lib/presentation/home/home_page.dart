@@ -57,7 +57,7 @@ class HomePage extends StatelessWidget {
                                       children: [
                                         const NewArrivalsCard(),
                                         SizedBox(height: dp(ctx, 24)),
-                                        const PopularRow(),
+                                        PopularRow(),
                                         SizedBox(height: dp(ctx, 72)),
                                       ],
                                     );
