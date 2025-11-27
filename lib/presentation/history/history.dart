@@ -11,7 +11,6 @@ class HistoryPage extends StatelessWidget {
   Stream<QuerySnapshot<Map<String, dynamic>>> _historyStream() {
     final user = FirebaseAuth.instance.currentUser;
     if (user == null) {
-      // kalau belum login, stream kosong
       return const Stream.empty();
     }
 
@@ -35,7 +34,6 @@ class HistoryPage extends StatelessWidget {
               child: Builder(
                 builder: (ctx) => Column(
                   children: [
-                    // ===== CUSTOM APP BAR =====
                     Padding(
                       padding: EdgeInsets.symmetric(
                         horizontal: dp(ctx, 20),
@@ -72,7 +70,6 @@ class HistoryPage extends StatelessWidget {
                               ),
                             ),
                           ),
-                          // dummy supaya title tetap center
                           Opacity(
                             opacity: 0,
                             child: Icon(Icons.more_horiz, size: dp(ctx, 20)),
@@ -81,7 +78,7 @@ class HistoryPage extends StatelessWidget {
                       ),
                     ),
 
-                    // ===== LIST DARI FIRESTORE =====
+                    // LIST DARI FIRESTORE
                     Expanded(
                       child: StreamBuilder<QuerySnapshot<Map<String, dynamic>>>(
                         stream: _historyStream(),
@@ -203,7 +200,7 @@ class HistoryPage extends StatelessWidget {
   }
 }
 
-// ===== CARD UNTUK SATU ITEM HISTORY =====
+// CARD UNTUK SATU ITEM HISTORY
 
 class _HistoryCard extends StatelessWidget {
   final String? imageUrl;

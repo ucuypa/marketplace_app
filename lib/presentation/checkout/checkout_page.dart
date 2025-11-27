@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import '../shared/ui_constants.dart';
 import '../shared/scale.dart';
 import '../cart/application/cart_controller.dart';
-import '../cart/models/courier_model.dart'; // Import the courier model
+import '../cart/models/courier_model.dart';
 import '../address_user/address_model.dart';
 import '../address_user/address_page.dart';
 
