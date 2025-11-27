@@ -10,7 +10,7 @@ class SellerHeaderCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // ✅ TAMBAHAN: logic hint kalau nama toko kosong
+    // ✅ Logic hint kalau nama toko kosong
     final bool isNameEmpty = data.storeName.isEmpty;
     final String displayName =
         isNameEmpty ? 'Set your store name' : data.storeName;
@@ -40,7 +40,7 @@ class SellerHeaderCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // ✅ UBAH bagian ini: pakai displayName + warna beda kalau kosong
+                // ✅ Pakai displayName + warna beda kalau kosong
                 Text(
                   displayName,
                   style: TextStyle(
@@ -50,27 +50,12 @@ class SellerHeaderCard extends StatelessWidget {
                   ),
                 ),
                 const SizedBox(height: 6),
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.star,
-                      size: 16,
-                      color: Color(0xFFFFC107),
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      data.rating.toStringAsFixed(1),
-                      style: const TextStyle(fontWeight: FontWeight.w500),
-                    ),
-                    const SizedBox(width: 8),
-                    const Text('•'),
-                    const SizedBox(width: 8),
-                    Text(
-                      '${data.salesCount} sales',
-                      style: const TextStyle(color: Colors.black54),
-                    ),
-                  ],
-                ),
+                
+                if (data.salesCount > 0)
+                  Text(
+                    '${data.salesCount} sales',
+                    style: const TextStyle(color: Colors.black54),
+                  ),
               ],
             ),
           ),

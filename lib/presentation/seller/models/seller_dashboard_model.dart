@@ -26,7 +26,6 @@ class SellerProduct {
 class SellerDashboardData {
   final String storeName;
   final String storeAddress;
-  final double rating;
   final int salesCount;
   final int productCount;
   final String? storeAvatarUrl;
@@ -35,7 +34,6 @@ class SellerDashboardData {
   SellerDashboardData({
     required this.storeName,
     required this.storeAddress,
-    required this.rating,
     required this.salesCount,
     required this.productCount,
     this.storeAvatarUrl,
@@ -45,7 +43,6 @@ class SellerDashboardData {
   SellerDashboardData copyWith({
     String? storeName,
     String? storeAddress,
-    double? rating,
     int? salesCount,
     int? productCount,
     String? storeAvatarUrl,
@@ -54,7 +51,6 @@ class SellerDashboardData {
     return SellerDashboardData(
       storeName: storeName ?? this.storeName,
       storeAddress: storeAddress ?? this.storeAddress,
-      rating: rating ?? this.rating,
       salesCount: salesCount ?? this.salesCount,
       productCount: productCount ?? this.productCount,
       storeAvatarUrl: storeAvatarUrl ?? this.storeAvatarUrl,

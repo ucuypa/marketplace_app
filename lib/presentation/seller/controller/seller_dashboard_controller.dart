@@ -47,7 +47,6 @@ class SellerDashboardController {
     return SellerDashboardData(
       storeName: data['storeName'] ?? '',
       storeAddress: data['storeAddress'] ?? '',
-      rating: (data['rating'] ?? 4.8).toDouble(),      // default contoh
       salesCount: (data['salesCount'] ?? 0) as int,
       productCount: productCount,
       storeAvatarUrl: data['profilePicUrl'],
